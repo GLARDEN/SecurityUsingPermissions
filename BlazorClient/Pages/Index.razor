@@ -1,0 +1,16 @@
+﻿@page "/"
+@using Microsoft.AspNetCore.Authorization
+<AuthorizeView>
+    <Authorized>
+       
+        <PageTitle>Index</PageTitle>
+
+        <h1>Permission Based Security</h1>
+
+        Welcome to your new app.        
+
+    </Authorized>
+    <NotAuthorized>
+        <RedirectToLogin/>
+    </NotAuthorized>
+</AuthorizeView> 

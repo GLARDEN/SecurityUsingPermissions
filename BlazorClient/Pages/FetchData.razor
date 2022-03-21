@@ -1,0 +1,87 @@
+﻿@page "/fetchdata"
+@using Security.Shared.Permissions
+@using Security.Shared.Permissions.Enums
+@using Security.Shared.Permissions.Helpers
+@inject HttpClient Http
+
+
+<PageTitle>Weather forecast</PageTitle>
+<h1>Weather forecast</h1>
+
+<p>This component demonstrates fetching data from the server.</p>
+
+
+@if (_forecasts == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+
+    <table class="table table-striped w-75">
+        <thead>
+            <tr>
+                <th scope="col">Date</th>
+                <th scope="col">Temp. (C)</th>
+                <th scope="col">Temp. (F)</th>
+                <th scope="col">Summary</th>
+                <th scope="col"></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var forecast in _forecasts)
+            {
+                if (forecast.IsEditing)
+                {
+                    <tr>
+                        <td>
+                            <input type="datetime" @bind="@forecast.Date"></input>
+                        </td>
+                        <td>
+                            <input type="number" @bind="@forecast.TemperatureC"></input>
+                        </td>
+                        <td>
+                            <input type="number" @bind="@forecast.TemperatureF"></input>
+                        </td>
+                        <td>
+                            <input type="text" @bind="@forecast.Summary"></input>
+                        </td>
+                        <td>
+                            <button class="btn btn-info" @onclick="(()=>Update(forecast))">Update</button>
+                        </td>
+                    </tr>
+                }
+                else
+                {
+                    <tr>
+                        <td>@forecast.Date.ToShortDateString()</td>
+                        <td>@forecast.TemperatureC</td>
+                        <td>@forecast.TemperatureF</td>
+                        <td>@forecast.Summary</td>
+                        <td>
+                            @if (_currentUser.HasPermission(Permission.ForecastView))
+                            {
+                                <button class="btn btn-info me-1" @onclick="(() => Edit(forecast))">Edit</button>
+                            }
+                            @if (_currentUser.HasPermission(Permission.ForecastDelete))
+                            {
+                                <button class="btn btn-info" @onclick="(() => Delete(forecast))">Delete</button>
+                            }
+                        </td>
+                    </tr>
+                }
+            }
+
+
+            <tr>
+                <td colspan="5" class="text-end">
+
+                    <button class="btn btn-info" @onclick="(()=>Add())">Add</button>
+
+                </td>
+            </tr>
+
+        </tbody>
+    </table>
+}
+
