@@ -1,5 +1,7 @@
 ﻿using Blazored.LocalStorage;
 
+using Security.Shared.Permissions.Helpers;
+
 using System.Security.Claims;
 using System.Text.Json;
 
@@ -36,10 +38,9 @@ public class TokenService : ITokenService
             return expire;
         }
 
-        var jwtClaims = ParseClaimsFromJwt(token);
-
         if (token != null)
         {
+            var jwtClaims = ParseClaimsFromJwt(token);
             var expiry = jwtClaims.Where(claim => claim.Type.Equals("exp")).FirstOrDefault();
             // The exp field is in Unix time
             var expiryDatetime = DateTimeOffset.FromUnixTimeSeconds(long.Parse(expiry.Value));
@@ -76,7 +77,7 @@ public class TokenService : ITokenService
     {        
         var payload = jwt.Split('.')[1];
         var jsonBytes = ParseBase64WithoutPadding(payload);
-
+        
         Dictionary<string,object> keyValuePairs = JsonSerializer.Deserialize<Dictionary<string, object>>(jsonBytes);
 
         IEnumerable<Claim> claims = keyValuePairs.Select(kvp => new Claim(kvp.Key, kvp.Value.ToString()));

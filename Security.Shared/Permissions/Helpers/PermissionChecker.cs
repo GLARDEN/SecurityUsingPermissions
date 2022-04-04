@@ -44,6 +44,6 @@ public static class PermissionChecker
     private static bool IsThisPermissionAllowed(this string packedPermissions, char permissionAsChar)
     {
         return packedPermissions.Contains(permissionAsChar) ||
-               packedPermissions.Contains(PermissionConstants.PackedPermissionClaimType);
+               packedPermissions.Contains(PermissionConstants.PackedAccessAllPermission);
     }
 }

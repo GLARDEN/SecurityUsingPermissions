@@ -4,9 +4,9 @@ using Blazored.LocalStorage;
 
 using Microsoft.AspNetCore.Components;
 
-using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace BlazorClient.Services;
 
@@ -17,7 +17,6 @@ public class HttpService :IHttpService
     private readonly ILocalStorageService _localStorage;
     private readonly HttpClient _httpClient;
     private readonly string _apiBaseUrl;
-
 
     public HttpService(IHttpClientFactory httpClientFactory, NavigationManager navigationManager, ILocalStorageService localStorage)
     {
@@ -102,20 +101,41 @@ public class HttpService :IHttpService
         await _localStorage.RemoveItemAsync("authenticationToken");
         _httpClient.DefaultRequestHeaders.Authorization = null;
     }
+
     private StringContent ToJson(object obj)
     {
-        return new StringContent(JsonSerializer.Serialize(obj), Encoding.UTF8, "application/json");
+        try
+        {
+            var result = JsonSerializer.Serialize(obj);
+            return new StringContent(result, Encoding.UTF8, "application/json");
+        }
+        catch (Exception ex)
+        {
+            var test = ex.Message;
+        }
+        return null;
     }
 
     private async Task<T> FromHttpResponseMessageAsync<T>(HttpResponseMessage result)
     {
-        return JsonSerializer.Deserialize<T>(await result.Content.ReadAsStringAsync(), new JsonSerializerOptions
+        try
         {
-            PropertyNameCaseInsensitive = true
+            return JsonSerializer.Deserialize<T>(await result.Content.ReadAsStringAsync(), new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+
+            });
+        } 
+        catch (Exception ex)
+        {
+            var test = ex;
+        }
+
+        return JsonSerializer.Deserialize<T>("", new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true,
+
         });
     }
-
-
-
 }
 

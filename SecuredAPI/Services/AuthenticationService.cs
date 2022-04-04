@@ -1,17 +1,11 @@
 ﻿using AutoMapper;
 
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-
-using Newtonsoft.Json.Linq;
-
-using SecuredAPI.JwtHelpers;
-
-using Security.Data;
 using Security.Shared.Models;
 using Security.Shared.Models.Authentication;
+using Security.Shared.Models.UserManagement;
+using Security.Shared.Permissions.Extensions;
 
+using System.Linq;
 using System.Security.Claims;
 using System.Security.Cryptography;
 
@@ -42,8 +36,7 @@ public class AuthenticationService : IAuthenticationService
         }
 
         CreatePasswordHash(changePasswordRequest.Password, out byte[] passwordHash, out byte[] passwordSalt);
-        user.PasswordHash = passwordHash;
-        user.PasswordSalt = passwordSalt;
+        user.SetPasswordHash(passwordHash, passwordSalt);
 
         await _appDbContext.SaveChangesAsync();
 
@@ -55,7 +48,7 @@ public class AuthenticationService : IAuthenticationService
     {
         LoginResponseDto loginResponse = new();
 
-        User user = await _appDbContext.Users.FirstOrDefaultAsync(u => u.Email.ToLower().Equals(loginRequest.Email.ToLower()));
+        User user = await _appDbContext.Users.Include(u => u.UserRoles).FirstOrDefaultAsync(u => u.Email.ToLower().Equals(loginRequest.Email.ToLower()));
 
         if (user == null)
         {
@@ -74,7 +67,7 @@ public class AuthenticationService : IAuthenticationService
             {
                 Id = user.Id,
                 Email = user.Email,
-                Claims = new List<Permission>() { Permission.ForecastView, Permission.ForecastUpdate, Permission.ForecastDelete }
+                Permissions = GetPermissionsForUser(user.UserRoles.ToList() ?? new List<UserRole>())
             };
 
             loginResponse.Token = _jwtTokenService.GenerateToken(userTokenInfo);
@@ -147,5 +140,16 @@ public class AuthenticationService : IAuthenticationService
         passwordHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
     }
 
+    private string GetPermissionsForUser(List<UserRole> userRoles)
+    {
+        List<string> assignedPermissions = userRoles.Select(ur => ur.AssignedPermissions).ToList();
 
+        if (!assignedPermissions.Any())
+            return null;
+
+        //thanks to https://stackoverflow.com/questions/5141863/how-to-get-distinct-characters
+        var packedPermissionsForUser = new string(string.Concat(assignedPermissions).Distinct().ToArray());
+
+        return packedPermissionsForUser;
+    }
 }

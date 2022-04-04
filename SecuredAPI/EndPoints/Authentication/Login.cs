@@ -20,8 +20,6 @@ public class Login : EndpointBaseAsync
 {
     private readonly IAuthenticationService _authenticationService;
     private readonly IMapper _mapper;
-    //private readonly UserManager<ApplicationUser> _userManager;
-    //private readonly SignInManager<ApplicationUser> _signInManager;
     private readonly IConfiguration _configuration;
     private readonly IJwtTokenService _jwtService;
 
@@ -29,8 +27,6 @@ public class Login : EndpointBaseAsync
     {
         _authenticationService = authenticationService;
         _mapper = mapper;
-        //_userManager = userManager;
-        //_signInManager = signInManager;
         _configuration = configuration;
         _jwtService = jwtService;
     }
@@ -38,7 +34,7 @@ public class Login : EndpointBaseAsync
     /// <summary>
     /// Authenticates and logs user in
     /// </summary>
-    [HttpPost("api/authentication/login")]
+    [HttpPost(LoginRequestDto.Route)]
     [AllowAnonymous]
     public override async Task<ActionResult<LoginResponseDto>> HandleAsync([FromBody] LoginRequestDto loginRequest, CancellationToken cancellationToken = default)
     {

@@ -36,7 +36,7 @@ public class WeatherForecastService
 
     public async Task<List<WeatherForecastDto>> ListAsync()
     {        
-        var response = await _httpService.HttpPostAsync<ListForecastsResponse>("weatherforecasts/list", new ListForecastsRequest());
+        var response = await _httpService.HttpPostAsync<ListForecastsResponse>("weatherforecasts/list", new ListUsersRequest());
         if (response.Forecasts != null) 
         {
             return response.Forecasts.ToList();

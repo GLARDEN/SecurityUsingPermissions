@@ -50,7 +50,7 @@ public class PermissionDisplay
         return $"{PermissionName}: Group: {GroupName}, ShortName: {ShortName}, Description: {Description}";
     }
 
-
+    
     /// <summary>
     /// This returns all the enum permission names with the various display attribute data
     /// NOTE: It does not show enum names that

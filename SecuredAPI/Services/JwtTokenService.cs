@@ -1,10 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.IdentityModel.Tokens;
-
-using SecuredAPI.JwtHelpers;
-
-using Security;
-using Security.Shared.Models.Authentication;
+﻿using Security.Shared.Models.Authentication;
 
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -27,7 +21,7 @@ public class JwtTokenService : IJwtTokenService
         {
             new Claim(ClaimTypes.NameIdentifier, userTokenDetails.Id.ToString()),
             new Claim(ClaimTypes.Name, userTokenDetails.Email),
-           new Claim(PermissionConstants.PackedPermissionClaimType,userTokenDetails.Claims.ConvertPermissionsToDelimitedString())
+            new Claim(PermissionConstants.PackedPermissionClaimType,userTokenDetails.Permissions ?? "")
         };
         return authenticationClaims;
     }

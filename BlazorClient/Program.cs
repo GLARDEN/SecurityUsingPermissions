@@ -17,7 +17,7 @@ var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
-var newUri = new Uri("https://localhost:7047/api/");
+var newUri = new Uri("https://localhost:7047/");
 
 
 
@@ -30,6 +30,8 @@ builder.Services.AddTransient<AuthorizationMessageHandler>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IHttpService, HttpService>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IRoleService, RoleService>();
+builder.Services.AddScoped<IPermissionDisplayService, PermissionDisplayService>();
 builder.Services.AddBlazoredLocalStorage();
 
 builder.Services.AddScoped<AuthenticationStateProvider, AuthStateProvider>();

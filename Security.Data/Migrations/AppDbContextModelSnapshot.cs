@@ -22,7 +22,7 @@ namespace Security.Data.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
 
-            modelBuilder.Entity("Security.Shared.Models.RoleToPermissions", b =>
+            modelBuilder.Entity("Security.Shared.Models.Administration.RoleManagement.Role", b =>
                 {
                     b.Property<string>("RoleName")
                         .HasColumnType("nvarchar(450)");
@@ -31,16 +31,27 @@ namespace Security.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("Enabled")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("PermissionsInRole")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("PermissionsInRole1");
+
                     b.Property<string>("_permissionsInRole")
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("PermissionsInRole");
 
                     b.HasKey("RoleName");
 
-                    b.ToTable("RolesToPermissions");
+                    b.HasIndex("RoleName")
+                        .IsUnique();
+
+                    b.ToTable("Roles");
                 });
 
-            modelBuilder.Entity("Security.Shared.Models.User", b =>
+            modelBuilder.Entity("Security.Shared.Models.UserManagement.User", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -51,7 +62,7 @@ namespace Security.Data.Migrations
 
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<byte[]>("PasswordHash")
                         .IsRequired()
@@ -63,20 +74,27 @@ namespace Security.Data.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("Email")
+                        .IsUnique();
+
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("Security.Shared.Models.UserToRole", b =>
+            modelBuilder.Entity("Security.Shared.Models.UserManagement.UserRole", b =>
                 {
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
 
-                    b.Property<int>("RoleName")
-                        .HasColumnType("int");
+                    b.Property<string>("RoleName")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("AssignedPermissions")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("UserId", "RoleName");
 
-                    b.ToTable("UserToRole");
+                    b.ToTable("UserRoles");
                 });
 
             modelBuilder.Entity("Security.Shared.Models.WeatherForecast", b =>
@@ -99,6 +117,20 @@ namespace Security.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("WeatherForecasts");
+                });
+
+            modelBuilder.Entity("Security.Shared.Models.UserManagement.UserRole", b =>
+                {
+                    b.HasOne("Security.Shared.Models.UserManagement.User", null)
+                        .WithMany("UserRoles")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Security.Shared.Models.UserManagement.User", b =>
+                {
+                    b.Navigation("UserRoles");
                 });
 #pragma warning restore 612, 618
         }

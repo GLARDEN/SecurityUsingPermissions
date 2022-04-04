@@ -1,0 +1,52 @@
+﻿@page "/rolemanagement"
+<h3>RoleManagement</h3>
+
+
+<a class="btn btn-primary" href="Create">Create A New Role</a>
+<p></p>
+
+@if (_roleList == null || _roleList?.Count() == 0)
+{
+    <h4>System has no roles configured. Please add some roles.</h4>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    Role Group
+                </th>
+                <th>
+                    Description
+                </th>
+                <th>
+                    #Permissions
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var role in _roleList)
+            {
+                <tr>
+                    <td>
+                        @role.RoleName
+                    </td>
+                    <td>
+                        @role.Description
+                    </td>
+                    <td>
+                        <a href="editRolePermissions">@role.PermissionsInRole.Count()</a>
+                       
+                    </td>
+                    <td>
+                           <button class="btn btn-info me-1" @onclick="(() => EditPermissions(role))">Edit</button>
+                           <button class="btn btn-info me-1" @onclick="(() => Delete(role))">Delete</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>   
+    
+}

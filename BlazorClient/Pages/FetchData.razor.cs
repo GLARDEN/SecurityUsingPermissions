@@ -8,8 +8,8 @@ using Security.Shared.Permissions.Helpers;
 
 namespace BlazorClient.Pages
 {
-    [HasPermission(Permission.ForecastView)]   
-    public partial class FetchData
+    
+    public partial class FetchData : ComponentBase
     {
         [Inject]
         public IUserService UserService { get; set; }
@@ -17,6 +17,10 @@ namespace BlazorClient.Pages
         public WeatherForecastService WeatherForecastService { get; set; }
         private List<WeatherForecastDto> _forecasts;
         private ClaimsPrincipal _currentUser;
+        private bool _canView = false;
+        private bool _canDelete = false;
+        private bool _canUpdate = false;
+        private bool _canCreate = false;
 
         public FetchData(){ }
 
@@ -28,11 +32,13 @@ namespace BlazorClient.Pages
             }
 
             if (UserService != null)
-            {
-                
+            {                
                 _currentUser = await UserService.GetCurrentUser();
+                _canCreate = _currentUser.HasPermission(Permission.ForecastCreate);
+                _canUpdate = _currentUser.HasPermission(Permission.ForecastUpdate);
+                _canDelete = _currentUser.HasPermission(Permission.ForecastDelete);
             }
-            var test = _currentUser.Claims.GetUserNameFromClaims();
+
             await base.OnInitializedAsync();
         }
 

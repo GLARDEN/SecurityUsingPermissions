@@ -17,7 +17,7 @@ namespace SecuredAPI.EndPoints.WeatherForecasts;
 
 
 public class List : EndpointBaseAsync
-                        .WithRequest<ListForecastsRequest>
+                        .WithRequest<ListUsersRequest>
                         .WithResult<ListForecastsResponse>
 {
     private readonly IForecastService _forecastService;
@@ -32,7 +32,7 @@ public class List : EndpointBaseAsync
     /// </summary>
     [HttpPost("api/weatherforecasts/list")]
     [HasPermission(Permission.ForecastView)]
-    public override async Task<ListForecastsResponse> HandleAsync([FromBody] ListForecastsRequest request, CancellationToken cancellationToken = default)
+    public override async Task<ListForecastsResponse> HandleAsync([FromBody] ListUsersRequest request, CancellationToken cancellationToken = default)
     {
         var result = await _forecastService.ListForecasts(request);
 

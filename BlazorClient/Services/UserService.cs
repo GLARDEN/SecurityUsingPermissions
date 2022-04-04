@@ -6,6 +6,8 @@ using Security.Shared.Models.Authentication;
 using System.Net.Http;
 using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
+using System.Linq;
+using Security.Shared.Models.UserManagement;
 
 namespace BlazorClient.Services;
 
@@ -40,7 +42,7 @@ public class UserService : IUserService
     public async Task<LoginResponseDto> Login(LoginRequestDto loginRequestDto)
     {
       
-        var authResult = await _httpService.HttpPostAsync<LoginResponseDto>("authentication/login", loginRequestDto);
+        var authResult = await _httpService.HttpPostAsync<LoginResponseDto>(LoginRequestDto.Route, loginRequestDto);
         
         if (!authResult.IsAuthenticationSuccessful)
         {
@@ -62,14 +64,46 @@ public class UserService : IUserService
 
     public async Task<RegistrationResponseDto> RegisterUserAsync(RegistrationRequestDto registrationRequest)
     {
-  
-        RegistrationResponseDto registrationResult = await _httpService.HttpPostAsync<RegistrationResponseDto>("authentication/register", registrationRequest);
-  
-        return registrationResult;
+        return (await _httpService.HttpPostAsync<RegistrationResponseDto>(RegistrationRequestDto.Route, registrationRequest));
     }
 
     public async Task<ClaimsPrincipal>  GetCurrentUser()
     {
         return (await _authStateProvider.GetAuthenticationStateAsync()).User;
+    }
+
+    public async Task<Guid> GetUserIdAsync()
+    {        
+        var currentUser = await GetCurrentUser();
+
+        var userId = currentUser.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
+        return Guid.Parse(userId?.Value ?? "");
+    }
+
+    public async Task<List<UserSummaryDto>> ListUsers()
+    {   
+        return (await _httpService.HttpGetAsync<ListUsersResponse>(ListUsersRequest.Route)).RegisteredUsers;
+    }
+
+    public async Task<EditUserRolesResponse> UpdateUserAccess(Guid userId, List<RoleDisplayDto> selectedRoles)
+    {
+        EditUserRolesRequest editUserRolesRequest = new()
+        {
+            UserId = userId,
+            Roles = selectedRoles.Select(x => new KeyValuePair<string, IEnumerable<string>>(x.RoleName, x.Permissions.Select(p => p.PermissionName)))
+                                 .ToDictionary(x => x.Key, x => x.Value)     
+        };
+
+        var result = await _httpService.HttpPostAsync<EditUserRolesResponse>("administration/usermanagement/editUserRoles", editUserRolesRequest);
+
+        return result;
+    }
+
+    public async Task<EditUserResponse> Save(EditUserRequest updateRequest)
+    {
+
+        var updateResult = await _httpService.HttpPostAsync<EditUserResponse>("administration/usermanagement/updateUser", updateRequest);
+               
+        return updateResult;
     }
 }

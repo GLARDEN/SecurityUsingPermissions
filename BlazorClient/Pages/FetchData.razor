@@ -59,11 +59,11 @@ else
                         <td>@forecast.TemperatureF</td>
                         <td>@forecast.Summary</td>
                         <td>
-                            @if (_currentUser.HasPermission(Permission.ForecastView))
+                            @if (_canUpdate)
                             {
                                 <button class="btn btn-info me-1" @onclick="(() => Edit(forecast))">Edit</button>
                             }
-                            @if (_currentUser.HasPermission(Permission.ForecastDelete))
+                            @if (_canDelete)
                             {
                                 <button class="btn btn-info" @onclick="(() => Delete(forecast))">Delete</button>
                             }
@@ -71,16 +71,13 @@ else
                     </tr>
                 }
             }
-
-
+            
             <tr>
                 <td colspan="5" class="text-end">
-
                     <button class="btn btn-info" @onclick="(()=>Add())">Add</button>
-
                 </td>
             </tr>
-
+            
         </tbody>
     </table>
 }

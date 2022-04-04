@@ -4,6 +4,8 @@ using System.Net.Http.Headers;
 using System.Security.Claims;
 using BlazorClient.Services;
 using System.Security.Principal;
+using Security.Shared.Permissions.Constants;
+using Security.Shared.Permissions.Helpers;
 
 namespace BlazorClient.Providers;
 
@@ -42,6 +44,7 @@ public class AuthStateProvider : AuthenticationStateProvider
                 else
                 {
                     IEnumerable<Claim> claims = await _tokenService.GetClaimsFromTokenAsync(token);
+                  
                     identity = new ClaimsIdentity(claims, "jwt");
                     _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token.Replace("\"", ""));
                 }

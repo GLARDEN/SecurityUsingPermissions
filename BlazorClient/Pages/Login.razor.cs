@@ -7,7 +7,7 @@ using Security.Shared.Models.Authentication;
 
 namespace BlazorClient.Pages;
 
-public partial class Login
+public partial class Login : ComponentBase
 {
     private LoginRequestDto _loginRequest = new LoginRequestDto();
     [Inject]

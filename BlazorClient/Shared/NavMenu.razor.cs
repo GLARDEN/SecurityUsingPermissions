@@ -11,7 +11,7 @@ namespace BlazorClient.Shared
     {
        
         [Inject]
-        public AuthenticationStateProvider GetAuthenticationStateAsync { get; set; }
+        public AuthenticationStateProvider AuthenticationStateProvider { get; set; }
 
         private bool collapseNavMenu = true;
         private ClaimsPrincipal _currentUser;
@@ -26,9 +26,9 @@ namespace BlazorClient.Shared
         }
 
         protected override async Task OnInitializedAsync()
-        {            
-          
-          
+        {
+            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            var _currentUser = authState.User;
 
             await base.OnInitializedAsync();
         }

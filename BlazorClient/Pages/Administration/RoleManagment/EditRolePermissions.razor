@@ -1,0 +1,39 @@
+﻿<table class="table">    
+    <thead>
+        <tr><th colspan="4">Permissions</th></tr>
+        <tr>
+            <th>
+                Group
+            </th>
+            <th>
+                Description
+            </th>
+            <th>
+                Permission
+            </th>
+            <th>Selected?</th>
+        </tr>
+    </thead>
+    <tbody id="permission-selection">
+        @foreach (var permission in _permissionDisplays)
+        {
+            <tr>
+                <td>
+                    @permission.GroupName
+                </td>
+                <td>
+                    @permission.Description
+                </td>
+                <td>
+                    @permission.PermissionName
+
+                </td>
+                <td>
+                   @* <button type="button" class="btn-sm  @(Model.PermissionsWithSelect[i].Selected ? "btn-primary" : "btn-secondary")">
+                        @(Model.PermissionsWithSelect[i].Selected ? "Selected" : "Select")
+                    </button>*@
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

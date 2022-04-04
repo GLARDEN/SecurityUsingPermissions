@@ -22,19 +22,19 @@
                         <span class="oi oi-home" aria-hidden="true"></span> Home
                     </NavLink>
                 </div>
-                @if (context.User.HasPermission(Permission.UserAdmin))
-                {
                     <div class="nav-item px-3">
-                        <NavLink class="nav-link" href="profile" Match="NavLinkMatch.All">
+                        <NavLink class="nav-link" href="userManagement/users">
                             <span class="oi oi-home" aria-hidden="true"></span> User Management
                         </NavLink>
                     </div>
+                @if (@context.User.HasPermission(Permission.ForecastView))
+                {
+                    <div class="nav-item px-3">
+                        <NavLink class="nav-link" href="fetchdata">
+                            <span class="oi oi-list-rich" aria-hidden="true"></span> Weather Forecasts
+                        </NavLink>
+                    </div>
                 }
-                <div class="nav-item px-3">
-                    <NavLink class="nav-link" href="fetchdata">
-                        <span class="oi oi-list-rich" aria-hidden="true"></span> Weather Forecasts
-                    </NavLink>
-                </div>
                 <div class="nav-item px-3">
                     <NavLink class="nav-link" href="logout">
                         <span class="oi oi-list-rich" aria-hidden="true"></span>Log Out

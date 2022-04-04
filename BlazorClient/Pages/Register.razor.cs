@@ -7,16 +7,18 @@ using Security.Shared.Models.Authentication;
 
 namespace BlazorClient.Pages;
 
-public partial class Register {
+public partial class Register : ComponentBase
+{
     [Inject]
-    private IUserService AuthenticationService { get; set; }
+    private IUserService UserService { get; set; }
 
     private RegistrationRequestDto registrationRequest = new();
     private string PageTitle = "Register";
     private string ErrorMessage = string.Empty;
-    private async Task HandleRegistration() {
-                
-        RegistrationResponseDto result = await AuthenticationService.RegisterUserAsync(registrationRequest);
+
+    private async Task HandleRegistration() 
+    {                
+        RegistrationResponseDto result = await UserService.RegisterUserAsync(registrationRequest);
         if (result.IsRegistrationSuccessful)
         {
             ErrorMessage = result.Errors.FirstOrDefault() ?? "";
@@ -24,8 +26,6 @@ public partial class Register {
         else
         {
             ErrorMessage = string.Empty;
-        }
-
-        
+        }        
     }
 }

@@ -1,0 +1,32 @@
+﻿@page "/CreateRole"
+
+
+<h3>Create A New Role</h3>
+
+<EditForm Model="_newRole" OnValidSubmit="SaveRole">
+      <div class="form-group row">
+        <label for="name" class="col-md-2 col-form-label">Name:</label>
+        <div class="col-md-10">
+            <InputText id="roleName" class="form-control" @bind-Value="_newRole.Name"/> 
+            
+        </div>
+    </div>
+    <div class="form-group row mt-1">
+        <label for="description" class="col-md-2 col-form-label">Description:</label>
+        <div class="col-md-10">
+            <InputText id="description" class="form-control" @bind-Value="_newRole.Description" />
+            
+        </div>
+    </div>
+    <div class="form-group row mt-1">
+        <label for="addPermission" class="col-md-2 col-form-label">Permissions:</label>
+        <div class="col-md-10">
+            <button id="addPermission" class="btn btn-info" >Add Permissions</button>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12 text-right">
+            <button id="save" type="submit" class="btn btn-success">Save</button>
+        </div>
+    </div>
+</EditForm>

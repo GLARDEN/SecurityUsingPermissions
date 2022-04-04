@@ -11,6 +11,7 @@ using Security.Shared.Models;
 using Security;
 using Security.Shared;
 using SecuredAPI.Services;
+using Security.Shared.Permissions;
 
 namespace SecuredAPI.EndPoints.WeatherForecasts;
 
@@ -27,10 +28,10 @@ public class Delete : EndpointBaseAsync
     }
 
     /// <summary>
-    /// Get a list of weather forecasts
+    /// Deletes a specified forecast
     /// </summary>
     [HttpPost("api/weatherforecasts/delete")]
-    
+    [HasPermission(Permission.ForecastDelete)]
     public override async Task<DeleteForecastResponse> HandleAsync([FromBody] DeleteForecastRequest request, CancellationToken cancellationToken = default)
     {
         var result = await _forecastService.DeleteForecast(request);

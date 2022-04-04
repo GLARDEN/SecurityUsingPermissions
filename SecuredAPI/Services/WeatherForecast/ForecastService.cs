@@ -67,7 +67,7 @@ public class ForecastService : IForecastService
         return response;
 
     }
-    public async Task<ListForecastsResponse> ListForecasts(ListForecastsRequest request)
+    public async Task<ListForecastsResponse> ListForecasts(ListUsersRequest request)
     {
         var forecastList = await _appDbContext.WeatherForecasts.ToListAsync(); 
         var forecasts = _mapper.Map<List<WeatherForecastDto>>(forecastList);

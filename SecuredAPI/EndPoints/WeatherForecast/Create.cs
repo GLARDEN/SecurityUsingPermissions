@@ -11,6 +11,7 @@ using Security.Shared.Models;
 using Security;
 using Security.Shared;
 using SecuredAPI.Services;
+using Security.Shared.Permissions;
 
 namespace SecuredAPI.EndPoints.WeatherForecasts;
 
@@ -30,7 +31,7 @@ public class Create : EndpointBaseAsync
     /// Get a list of weather forecasts
     /// </summary>
     [HttpPut("api/weatherforecasts/create")]
-    
+    [HasPermission(Permission.ForecastCreate)]
     public override async Task<CreateForecastResponse> HandleAsync([FromBody] CreateForecastRequest request, CancellationToken cancellationToken = default)
     {
         var result = await _forecastService.CreateForecast(request);

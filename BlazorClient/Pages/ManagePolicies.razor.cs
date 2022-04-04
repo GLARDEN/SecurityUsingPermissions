@@ -1,10 +1,11 @@
 using Security.Shared.Permissions.Enums;
 using Security.Shared.Permissions;
+using Microsoft.AspNetCore.Components;
 
 namespace BlazorClient.Pages
 {
-    [HasPermission(Permission.UserAdmin)]
-    public partial class ManagePolicies
+    
+    public partial class ManagePolicies : ComponentBase
     {
     }
 }

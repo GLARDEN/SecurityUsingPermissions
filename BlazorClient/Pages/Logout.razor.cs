@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Components;
 
 namespace BlazorClient.Pages;
 
-public partial class Logout
+public partial class Logout : ComponentBase
 {
     [Inject]
     public IUserService UserService { get; set; } = null!;

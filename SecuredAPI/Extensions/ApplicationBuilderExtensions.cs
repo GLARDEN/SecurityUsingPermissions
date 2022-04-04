@@ -27,15 +27,15 @@ internal static class ApplicationBuilderExtensions
         });
     }
 
-    internal static IApplicationBuilder UseEndpoints(this IApplicationBuilder app)  => app.UseEndpoints(endpoints =>
-        {
-            endpoints.MapControllers();
-        });
+    internal static IApplicationBuilder UseEndpoints(this IApplicationBuilder app) => app.UseEndpoints(endpoints =>
+       {
+           endpoints.MapControllers();
+       });
 
 
 
     internal static void Initialize(this IApplicationBuilder app)
     {
-       
+
     }
 }

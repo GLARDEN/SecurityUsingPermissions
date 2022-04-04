@@ -1,10 +1,4 @@
-﻿
-using Microsoft.AspNetCore.Identity;
-
-using SecuredAPI.Authorization;
-
-using Security.Shared.Authorization;
-using Security.Shared.Authorization.Handlers;
+﻿using Security.Shared.Authorization.Handlers;
 using Security.Shared.Authorization.Providers;
 
 namespace SecuredAPI.Extensions;
@@ -55,9 +49,6 @@ internal static class ServiceCollectionExtensions
                 }
             };
         });
-              
-        services.AddScoped<IGetClaimsProvider, GetClaimsFromUser>();
-
         services.AddControllers().AddNewtonsoftJson();
     }
 
@@ -149,6 +140,8 @@ internal static class ServiceCollectionExtensions
         services.AddScoped<IAuthenticationService, AuthenticationService>();
         services.AddScoped<IProfileService, ProfileService>();
         services.AddScoped<IForecastService, ForecastService>();
+        services.AddScoped<IRoleService, RoleService>();
+        services.AddScoped<IUserManagementService, UserManagementService>();
         services.AddScoped<IDatabaseCreator, DatabaseCreator>();
         return services;
     }
