@@ -24,14 +24,23 @@ public enum Permission : ushort
     [Display(GroupName = "User Management", Name = "Delete", Description = "Can delete a user", Order = 40)]
     UserDelete = 24,
 
-    [Display(GroupName = "User Role Management", Name = "RoleView", Description = "Can view a users roles", Order = 50)]
+    [Display(GroupName = "User Role Management", Name = "View", Description = "Can view a users roles", Order = 50)]
     UserRoleView = 30,
-    [Display(GroupName = "User Role Management", Name = "RoleCreate", Description = "Can view a users roles", Order = 60)]
+    [Display(GroupName = "User Role Management", Name = "Create", Description = "Can view a users roles", Order = 60)]
     UserRoleCreate = 31,
-    [Display(GroupName = "User Role Management", Name = "RoleEdit", Description = "Can edit a users role", Order = 70)]
+    [Display(GroupName = "User Role Management", Name = "Edit", Description = "Can edit a users role", Order = 70)]
     UserRoleEdit = 32,
-    [Display(GroupName = "User Role Management", Name = "RoleDelete", Description = "Can delete a users role", Order = 80)]
+    [Display(GroupName = "User Role Management", Name = "Delete", Description = "Can delete a users role", Order = 80)]
     UserRoleDelete = 33,
+
+    [Display(GroupName = "Role Management", Name = "View", Description = "Can view a list of all roles", Order = 90)]
+    RoleView = 40,
+    [Display(GroupName = "Role Management", Name = "Create", Description = "Can create a new role", Order = 100)]
+    RoleCreate = 41,
+    [Display(GroupName = "Role Management", Name = "Edit", Description = "Can update a role", Order = 110)]
+    RoleEdit = 42,
+    [Display(GroupName = "Role Management", Name = "Delete", Description = "Can delete a role", Order = 120)]
+    RoleDelete = 43,
 
     [Display(GroupName = "Admin", Name = "AccessAll", Description = "This allows the user to access every feature")]
     AccessAll = 4567

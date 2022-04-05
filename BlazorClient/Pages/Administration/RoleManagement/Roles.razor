@@ -1,5 +1,7 @@
-﻿@page "/rolemanagement"
-<h3>RoleManagement</h3>
+﻿@page "/RoleManagement/Roles"
+@using Security.Shared.Permissions.Extensions
+
+<h3>@PageTitle</h3>
 
 
 <a class="btn btn-primary" href="Create">Create A New Role</a>
@@ -21,7 +23,7 @@ else
                     Description
                 </th>
                 <th>
-                    #Permissions
+                    Assigned Permissions
                 </th>
                 <th></th>
             </tr>
@@ -37,8 +39,11 @@ else
                         @role.Description
                     </td>
                     <td>
-                        <a href="editRolePermissions">@role.PermissionsInRole.Count()</a>
-                       
+                        
+                        @foreach(var permissionName in role.PermissionsInRole.ConvertPackedPermissionToNames())
+                        {
+                            <li>@permissionName</li>
+                        }
                     </td>
                     <td>
                            <button class="btn btn-info me-1" @onclick="(() => EditPermissions(role))">Edit</button>

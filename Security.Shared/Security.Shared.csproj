@@ -14,7 +14,6 @@
  
   <ItemGroup>
     <Folder Include="Authorization\Extensions\" />
-    <Folder Include="Models\Permissions\" />
   </ItemGroup>
 
 </Project>

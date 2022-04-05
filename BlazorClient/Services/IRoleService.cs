@@ -8,7 +8,7 @@ public interface IRoleService {
 
     Task<CreateRoleResponse> CreateAsync(CreateRoleRequest createRoleRequest);
     Task<DeleteRoleResponse> DeleteAsync(RoleDto role);
-    Task<IEnumerable<RoleDto>> ListRoles();
+    Task<List<RoleDto>> ListRoles();
     
 
 }

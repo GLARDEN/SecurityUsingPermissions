@@ -8,6 +8,9 @@ using System.Runtime.CompilerServices;
 using Security.Shared.Models.Administration.Role;
 using Security.Shared.Models.Administration.RoleManagement;
 using Security.Shared.Permissions.Extensions;
+using Ardalis.Result;
+using Security.Shared.Models.UserManagement;
+using Ardalis.GuardClauses;
 
 namespace SecuredAPI.Services;
 
@@ -16,47 +19,53 @@ public class RoleService : IRoleService
     private readonly IMapper _mapper;
     private readonly AppDbContext _appDbContext;
     private readonly Type _permissionEnumType;
-    
+
     public RoleService(IMapper mapper, AppDbContext appDbContext)
     {
         _mapper = mapper;
         _appDbContext = appDbContext;
-        _permissionEnumType =  typeof(Permission); 
+        _permissionEnumType = typeof(Permission);
     }
 
-
-    public async Task<CreateRoleResponse> Create(CreateRoleRequest createRoleRequest)
+    public async Task<Result<CreateRoleResponse>> Create(CreateRoleRequest createRoleRequest)
     {
-
-        if (await RoleExists(createRoleRequest.Name))
+        try
         {
-            return new CreateRoleResponse()
+            if (await RoleExists(createRoleRequest.Name))
             {
-                Success = false,
-                ErrorMessage = "Role Already Exists."
-            };
+                return Result<CreateRoleResponse>.Error("Role already exists.");
+            }
+
+            Role newRole = new(createRoleRequest.Name, createRoleRequest.Description, true, createRoleRequest.Permissions);
+
+            await _appDbContext.Roles.AddAsync(newRole);
+
+            var result = await _appDbContext.SaveChangesAsync();
+
+            if (result > 0)
+            {
+                return Result<CreateRoleResponse>.Success(new CreateRoleResponse()
+                {
+                    Success = true,
+                    Role = _mapper.Map<RoleDto>(newRole)
+                });
+            }
+            else
+            {
+                return Result<CreateRoleResponse>.Error($"Failed to save role {newRole.RoleName}.");
+            }
         }
-
-        string permissions = _permissionEnumType.PackPermissionsNames(createRoleRequest.Permissions);
-
-        Role newRole = new Role(createRoleRequest.Name, createRoleRequest.Description,true, permissions );
-
-        _appDbContext.Roles.Add(newRole);
-
-        var result = await _appDbContext.SaveChangesAsync();
-
-        CreateRoleResponse _response = new CreateRoleResponse()
+        catch (Exception ex)
         {
-            Success = result > 0 ? true : false,
-            ErrorMessage = result! > 0 ? "Failed to save role" : "",
-            Role = _mapper.Map<RoleDto>(newRole)
-        };
-
-        return _response;
+            return Result<CreateRoleResponse>.Error(ex.Message);
+        }
     }
 
-    public async Task<DeleteRoleResponse> Delete(DeleteRoleRequest deleteRoleRequest)
+    public async Task<Result<DeleteRoleResponse>> Delete(DeleteRoleRequest deleteRoleRequest)
     {
+        Guard.Against.Null(deleteRoleRequest, nameof(deleteRoleRequest), "Delete request object is required.");
+        Guard.Against.Null(deleteRoleRequest.Role, nameof(deleteRoleRequest.Role), "Request must contain a role object");
+
         var role = _appDbContext.Roles.Find(deleteRoleRequest.Role.RoleName);
         if (role != null)
         {
@@ -65,28 +74,64 @@ public class RoleService : IRoleService
 
         var result = await _appDbContext.SaveChangesAsync();
 
-        DeleteRoleResponse response = new()
+        if (result > 0)
         {
-            Success = result == 0 ? false : true
-        };
-
-        return response;
+            return Result<DeleteRoleResponse>.Success(new DeleteRoleResponse()
+            {
+                Success = true
+            });
+        }
+        else
+        {
+            return Result<DeleteRoleResponse>.Error($"Failed to delete role {deleteRoleRequest.Role.RoleName}.");
+        }
     }
 
-    public async Task<ListRolesResponse> GetRolesAsync()
+    public async Task<Result<ListRolesResponse>> ListAsync()
     {
-        ListRolesResponse rolesResponse = new();
-        rolesResponse.Success = false;
-
-        var roleList = await _appDbContext.Roles.Where(r => r.Enabled).ToListAsync();
-
-        if (roleList != null || roleList?.Count > 0)
+        try
         {
-            rolesResponse.Roles = _mapper.Map<List<RoleDto>>(roleList);
-            rolesResponse.Success = true;
-        }
+            var roleList = await _appDbContext.Roles.Where(r => r.Enabled).ToListAsync();
 
-        return rolesResponse;
+            return Result<ListRolesResponse>.Success(new ListRolesResponse()
+            {
+                Success = true,
+                Roles = _mapper.Map<List<RoleDto>>(roleList) ?? new List<RoleDto>()
+            });
+
+        }
+        catch (Exception ex)
+        {
+            return Result<ListRolesResponse>.Error(ex.Message);
+        }
+    }
+
+    public async Task<Result<EditRoleResponse>> EditAsync(EditRoleRequest request)
+    {
+        try
+        {
+            Role role = await _appDbContext.Roles.FirstOrDefaultAsync(r => r.RoleName == request.RoleName);
+
+            if (role == null)
+            {
+                return Result<EditRoleResponse>.NotFound();
+            }
+            else
+            {                
+                role.UpdatePermissions(request.PermissionNames);
+
+                await _appDbContext.SaveChangesAsync();
+
+                return Result<EditRoleResponse>.Success(new EditRoleResponse()
+                {
+                    Success = true,                  
+                });
+            }
+        }
+        catch (Exception ex)
+        {
+            return Result<EditRoleResponse>.Error(ex.Message);
+        }
     }
 
     public async Task<bool> RoleExists(string roleName)
@@ -95,3 +140,5 @@ public class RoleService : IRoleService
         return roleExists;
     }
 }
+
+

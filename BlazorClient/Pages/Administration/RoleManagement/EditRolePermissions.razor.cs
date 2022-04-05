@@ -1,3 +1,4 @@
+using BlazorClient.Providers;
 using BlazorClient.Services;
 
 using Microsoft.AspNetCore.Components;
@@ -8,12 +9,12 @@ using Security.Shared.Permissions.Helpers;
 
 using System.Security.Claims;
 
-namespace BlazorClient.Pages.Administration.RoleManagment;
+namespace BlazorClient.Pages.Administration.RoleManagement;
 
 public partial class EditRolePermissions : ComponentBase
 {
     [Inject]
-    public IUserService UserService { get; set; }
+    protected StateProvider StateProvider { get; set; } = null!;
     [Inject]
     public IRoleService RoleService { get; set; }
 
@@ -22,11 +23,20 @@ public partial class EditRolePermissions : ComponentBase
 
     private IEnumerable<PermissionDisplay> _permissionDisplays = null!;
 
+    protected override void OnInitialized()
+    {
+        SelectedRole = (RoleDto)StateProvider.State;
+
+        StateProvider.State = null;
+    }
+
     protected override async Task OnInitializedAsync()
     {
         _permissionDisplays = PermissionDisplay.GetPermissionsToDisplay(typeof(Permission), true);
-        _currentUser = await UserService.GetCurrentUser();
-
+    }
+    private void ChangePropertyValue()
+    {
+        SelectedRole = ((RoleDto)StateProvider.State);
     }
 
     private bool IsPermissionSelected(Permission permission)

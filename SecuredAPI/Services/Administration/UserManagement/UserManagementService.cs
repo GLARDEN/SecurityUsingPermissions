@@ -21,7 +21,7 @@ public class UserManagementService : IUserManagementService
         _appDbContext = appDbContext;
     }
 
-    public async Task<Result<ListUsersResponse>> List()
+    public async Task<Result<ListUsersResponse>> ListAsync()
     {
         try
         {

@@ -25,8 +25,7 @@ public class List : EndpointBaseAsync
 
     public override async Task<ActionResult<ListUsersResponse>> HandleAsync(CancellationToken cancellationToken = default)
     {
-
-        ListUsersResponse response = await _userManagementService.List();
+        ListUsersResponse response = await _userManagementService.ListAsync();
                 
         return this.ToActionResult<ListUsersResponse>(response);
     }

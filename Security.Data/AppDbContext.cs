@@ -24,18 +24,13 @@ public class AppDbContext : DbContext
 
         builder.Entity<User>().HasKey(k => k.Id);
 
-
         builder.Entity<UserRole>().HasKey(x => new { x.UserId, x.RoleName });       
-        
-
 
         builder.Entity<Role>()  
                .HasIndex(x => x.RoleName)
                .IsUnique();
 
         builder.Entity<Role>().HasKey(x => x.RoleName);
-        builder.Entity<Role>().Property<string>("_permissionsInRole")
-            .HasColumnName("PermissionsInRole");
 
         base.OnModelCreating(builder);
     }

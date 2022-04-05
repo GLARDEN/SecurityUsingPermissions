@@ -7,7 +7,7 @@ namespace SecuredAPI.Services;
 
 public interface IUserManagementService
 {
-    Task<Result<ListUsersResponse>> List();
+    Task<Result<ListUsersResponse>> ListAsync();
     Task<EditUserResponse> UpdateUser(EditUserRequest request);
     Task<EditUserRolesResponse> EditUserRoles(EditUserRolesRequest request);
 }

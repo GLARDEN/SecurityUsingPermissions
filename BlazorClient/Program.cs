@@ -42,7 +42,7 @@ builder.Services.AddAuthorizationCore();
 builder.Services.AddSingleton<IAuthorizationPolicyProvider, AuthorizationPolicyProvider>();
 builder.Services.AddSingleton<IAuthorizationHandler, PermissionPolicyHandler>();
 
-
+builder.Services.AddSingleton<StateProvider>();
 
 
 

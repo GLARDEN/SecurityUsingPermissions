@@ -1,4 +1,5 @@
 ﻿using Ardalis.ApiEndpoints;
+using Ardalis.Result.AspNetCore;
 
 using AutoMapper;
 
@@ -11,6 +12,7 @@ using SecuredAPI.Services;
 using Security.Data;
 using Security.Shared.Models;
 using Security.Shared.Models.Administration.Role;
+using Security.Shared.Permissions;
 
 namespace SecuredAPI.EndPoints.Administration.RoleManagement;
 
@@ -23,20 +25,16 @@ public class Delete : EndpointBaseAsync
     public Delete(IRoleService roleService)
     {
         _roleService = roleService;
-
     }
 
     /// <summary>
     /// Deletes a specified forecast
     /// </summary>
-    [HttpPost("api/administration/role/delete")]
-
+    [HttpPost(DeleteRoleRequest.Route)]
+    [HasPermission(Permission.RoleDelete)]
     public override async Task<ActionResult<DeleteRoleResponse>> HandleAsync([FromBody] DeleteRoleRequest request, CancellationToken cancellationToken = default)
     {
-        var result = await _roleService.Delete(request);
-
-        return result;
+        DeleteRoleResponse deleteRoleResponse = await _roleService.Delete(request);
+        return this.ToActionResult<DeleteRoleResponse>(deleteRoleResponse);
     }
-
-
 }

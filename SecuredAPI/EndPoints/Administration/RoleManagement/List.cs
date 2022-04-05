@@ -1,4 +1,5 @@
 ﻿using Ardalis.ApiEndpoints;
+using Ardalis.Result.AspNetCore;
 
 using AutoMapper;
 
@@ -27,16 +28,11 @@ public class List : EndpointBaseAsync
     /// <summary>
     /// Authenticates and logs user in
     /// </summary>
-    [HttpGet("api/administration/role/list")]
+    [HttpGet(ListRolesRequest.Route)]
     public override async Task<ActionResult<ListRolesResponse>> HandleAsync(CancellationToken cancellationToken = default)
     {
-        ListRolesResponse listRolesResponse = await _roleService.GetRolesAsync();
+        ListRolesResponse response = await _roleService.ListAsync();
 
-        if (!listRolesResponse.Success)
-        {
-            return BadRequest(listRolesResponse);
-        }
-
-        return listRolesResponse;
+        return this.ToActionResult<ListRolesResponse>(response);
     }
 }

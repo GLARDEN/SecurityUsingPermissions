@@ -12,6 +12,7 @@ using Security;
 using Security.Shared;
 using SecuredAPI.Services;
 using Security.Shared.Permissions;
+using Ardalis.Result;
 
 namespace SecuredAPI.EndPoints.WeatherForecasts;
 
@@ -33,10 +34,9 @@ public class Create : EndpointBaseAsync
     [HttpPut(CreateForecastRequest.Route)]
     [HasPermission(Permission.ForecastCreate)]
     public override async Task<CreateForecastResponse> HandleAsync([FromBody] CreateForecastRequest request, CancellationToken cancellationToken = default)
-    {
-        var result = await _forecastService.CreateForecast(request);
-
-        return result;
+{
+        return await _forecastService.CreateForecast(request);
+       
     }
 
 

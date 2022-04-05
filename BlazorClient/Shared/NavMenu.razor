@@ -22,11 +22,25 @@
                         <span class="oi oi-home" aria-hidden="true"></span> Home
                     </NavLink>
                 </div>
+
+                @if (@context.User.HasPermission(Permission.UserView))
+                {
                     <div class="nav-item px-3">
-                        <NavLink class="nav-link" href="userManagement/users">
+                        <NavLink class="nav-link" href="UserManagement/Users">
                             <span class="oi oi-home" aria-hidden="true"></span> User Management
                         </NavLink>
                     </div>
+                }
+
+                @if (@context.User.HasPermission(Permission.RoleView))
+                {
+                    <div class="nav-item px-3">
+                        <NavLink class="nav-link" href="RoleManagement/Roles">
+                            <span class="oi oi-home" aria-hidden="true"></span> Role Management
+                        </NavLink>
+                    </div>
+                }
+
                 @if (@context.User.HasPermission(Permission.ForecastView))
                 {
                     <div class="nav-item px-3">

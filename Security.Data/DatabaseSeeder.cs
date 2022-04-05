@@ -4,8 +4,10 @@ using Microsoft.Extensions.Logging;
 using SecuredAPI.Services;
 
 using Security.Shared.Models;
+using Security.Shared.Models.Administration.RoleManagement;
 using Security.Shared.Models.UserManagement;
 using Security.Shared.Permissions.Enums;
+using Security.Shared.Permissions.Extensions;
 using Security.Shared.Permissions.Helpers;
 
 using System;
@@ -29,10 +31,38 @@ public class DatabaseCreator : IDatabaseCreator
 
     public void Initialize()
     {
-
+        CreateRoles();
         CreateForecasts();
         CreateAdminUser();
         CreateTestUsers();
+    }
+
+    private void CreateRoles()
+    {
+
+        Task.Run(async () =>
+        {
+            List<Role> testRoleList = new();
+            var permissionsToDisplay = PermissionDisplay.GetPermissionsToDisplay(typeof(Permission), true);
+
+            List<string> forecastPermissions = permissionsToDisplay.Where(p => p.GroupName == "Forecast").Select(p => p.PermissionName).ToList();
+            Role forecastUserRole = new("Forecast User", "Role allows users to work with forecast data", true, forecastPermissions);
+            testRoleList.Add(forecastUserRole);
+
+
+            List<string> userAdministrationPermissions = permissionsToDisplay.Where(p => p.GroupName == "User Management").Select(p => p.PermissionName).ToList();
+            Role userAdministrationRole = new("User Administrator", "Role allows users to work with forecast data", true, userAdministrationPermissions);
+            testRoleList.Add(userAdministrationRole);
+
+            List<string> roleAdministrationPermissions = permissionsToDisplay.Where(p => p.GroupName == "Role Management").Select(p => p.PermissionName).ToList();
+            Role roleAdministrationRole = new("Role Administrator", "Role allows users to work with forecast data", true, roleAdministrationPermissions);
+            testRoleList.Add(roleAdministrationRole);
+
+
+            await _appDbContext.Roles.AddRangeAsync(testRoleList);
+            await _appDbContext.SaveChangesAsync();
+
+        }).GetAwaiter().GetResult();
     }
 
     private void CreateForecasts()
@@ -62,21 +92,18 @@ public class DatabaseCreator : IDatabaseCreator
         Task.Run(async () =>
         {
             List<User> testUsers = new();
-            var permissionsToDisplay = PermissionDisplay.GetPermissionsToDisplay(typeof(Permission),true);
+            var permissionsToDisplay = PermissionDisplay.GetPermissionsToDisplay(typeof(Permission), true);
 
             List<string> forecastPermissions = permissionsToDisplay.Where(p => p.GroupName == "Forecast").Select(p => p.PermissionName).ToList();
 
-            
+            //Test Forecast User Account
             CreatePasswordHash("forecast", out byte[] passwordHash, out byte[] passwordSalt);
             User forecastUser = new("forecastView@test.com", passwordHash, passwordSalt);
 
             forecastUser.AssignRole("Forecast User", forecastPermissions);
 
-            //await _appDbContext.Users.AddRangeAsync(forecastUser);
-            //await _appDbContext.SaveChangesAsync();
-
+            //Test User Account Administrator Account
             List<string> userManagementPermissions = permissionsToDisplay.Where(p => p.GroupName == "User Management").Select(p => p.PermissionName).ToList();
-
 
             CreatePasswordHash("useradmin", out byte[] passwordHash1, out byte[] passwordSalt1);
 
@@ -84,8 +111,19 @@ public class DatabaseCreator : IDatabaseCreator
 
             userAdmin.AssignRole("User Management", userManagementPermissions);
 
+
+            //Test Role Administrator Account
+            List<string> roleManagementPermissions = permissionsToDisplay.Where(p => p.GroupName == "Role Management").Select(p => p.PermissionName).ToList();
+
+            CreatePasswordHash("roleadmin", out byte[] ph, out byte[] ps);
+
+            User roleAdmin = new("roleAdmin@test.com", ph, ps);
+
+            roleAdmin.AssignRole("Role Management", roleManagementPermissions);
+
             testUsers.Add(forecastUser);
             testUsers.Add(userAdmin);
+            testUsers.Add(roleAdmin);
             await _appDbContext.Users.AddRangeAsync(testUsers);
             await _appDbContext.SaveChangesAsync();
 
@@ -96,14 +134,14 @@ public class DatabaseCreator : IDatabaseCreator
     {
         Task.Run(async () =>
         {
-            List<string> adminPermission = new List<string>() { Permission.AccessAll.ToString()};
+            List<string> adminPermission = new List<string>() { Permission.AccessAll.ToString() };
 
-            
+
             CreatePasswordHash("admin", out byte[] passwordHash, out byte[] passwordSalt);
-            User admin = new("admin@test.com",passwordHash,passwordSalt);
+            User admin = new("admin@test.com", passwordHash, passwordSalt);
 
             admin.AssignRole("Admin", adminPermission);
-            
+
             await _appDbContext.Users.AddAsync(admin);
             await _appDbContext.SaveChangesAsync();
 

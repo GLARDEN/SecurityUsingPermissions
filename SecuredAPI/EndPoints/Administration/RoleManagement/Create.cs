@@ -1,4 +1,5 @@
 ﻿using Ardalis.ApiEndpoints;
+using Ardalis.Result.AspNetCore;
 
 using AutoMapper;
 
@@ -10,6 +11,7 @@ using SecuredAPI.Services;
 
 using Security.Shared.Models;
 using Security.Shared.Models.Administration.Role;
+using Security.Shared.Permissions;
 
 namespace SecuredAPI.EndPoints.Administration.RoleManagement;
 
@@ -27,21 +29,11 @@ public class Create : EndpointBaseAsync
     /// <summary>
     /// Authenticates and logs user in
     /// </summary>
-    [HttpPost("api/administration/role/create")]
+    [HttpPost(CreateRoleRequest.Route)]
+    [HasPermission(Permission.RoleCreate)]
     public override async Task<ActionResult<CreateRoleResponse>> HandleAsync([FromBody] CreateRoleRequest createRoleRequest, CancellationToken cancellationToken = default)
     {
-        if (createRoleRequest == null || !ModelState.IsValid)
-        {
-            return new CreateRoleResponse() { Success = false, ErrorMessage = "Create Role Request is null." };
-        }
-
         CreateRoleResponse createRoleResponse = await _roleService.Create(createRoleRequest);
-
-        if (!createRoleResponse.Success)
-        {
-            return BadRequest(createRoleResponse);
-        }
-
-        return createRoleResponse;
+        return this.ToActionResult<CreateRoleResponse>(createRoleResponse);
     }
 }
