@@ -1,13 +1,15 @@
-﻿using Security.Shared.Models;
+﻿using Ardalis.Result;
+
+using Security.Shared.Models;
 
 namespace SecuredAPI.Services;
 
 public interface IForecastService
 {
 
-    Task<CreateForecastResponse> CreateForecast(CreateForecastRequest request);
-    Task<DeleteForecastResponse> DeleteForecast(DeleteForecastRequest request);
-    Task<GetByIdForecastResponse> GetForecastById(GetByIdForecastRequest request);
-    Task<ListForecastsResponse> ListForecasts(ListUsersRequest request);
-    Task<UpdateForecastResponse> UpdateForecast(UpdateForecastRequest request);
+    Task<Result<CreateForecastResponse>> CreateForecast(CreateForecastRequest request);
+    Task<Result<DeleteForecastResponse>> DeleteForecast(DeleteForecastRequest request);
+    Task<Result<GetByIdForecastResponse>> GetForecastById(GetByIdForecastRequest request);
+    Task<Result<ListForecastsResponse>> ListForecasts();
+    Task<Result<UpdateForecastResponse>> UpdateForecast(UpdateForecastRequest request);
 }

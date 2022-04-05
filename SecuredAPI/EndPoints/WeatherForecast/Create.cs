@@ -30,7 +30,7 @@ public class Create : EndpointBaseAsync
     /// <summary>
     /// Get a list of weather forecasts
     /// </summary>
-    [HttpPut("api/weatherforecasts/create")]
+    [HttpPut(CreateForecastRequest.Route)]
     [HasPermission(Permission.ForecastCreate)]
     public override async Task<CreateForecastResponse> HandleAsync([FromBody] CreateForecastRequest request, CancellationToken cancellationToken = default)
     {

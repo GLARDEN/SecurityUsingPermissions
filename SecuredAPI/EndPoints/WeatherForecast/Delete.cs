@@ -30,7 +30,7 @@ public class Delete : EndpointBaseAsync
     /// <summary>
     /// Deletes a specified forecast
     /// </summary>
-    [HttpPost("api/weatherforecasts/delete")]
+    [HttpPost(DeleteForecastRequest.Route)]
     [HasPermission(Permission.ForecastDelete)]
     public override async Task<DeleteForecastResponse> HandleAsync([FromBody] DeleteForecastRequest request, CancellationToken cancellationToken = default)
     {

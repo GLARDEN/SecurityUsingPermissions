@@ -12,13 +12,14 @@ using Security;
 using Security.Shared;
 using SecuredAPI.Services;
 using Security.Shared.Permissions;
+using Ardalis.Result.AspNetCore;
 
 namespace SecuredAPI.EndPoints.WeatherForecasts;
 
 
 public class List : EndpointBaseAsync
-                        .WithRequest<ListUsersRequest>
-                        .WithResult<ListForecastsResponse>
+                        .WithoutRequest
+                         .WithActionResult<ListForecastsResponse>
 {
     private readonly IForecastService _forecastService;
 
@@ -30,12 +31,14 @@ public class List : EndpointBaseAsync
     /// <summary>
     /// Get a list of weather forecasts
     /// </summary>
-    [HttpPost("api/weatherforecasts/list")]
+    [HttpGet(ListForecastsRequest.Route)]
     [HasPermission(Permission.ForecastView)]
-    public override async Task<ListForecastsResponse> HandleAsync([FromBody] ListUsersRequest request, CancellationToken cancellationToken = default)
+    public override async Task<ActionResult<ListForecastsResponse>> HandleAsync( CancellationToken cancellationToken = default)
     {
-        var result = await _forecastService.ListForecasts(request);
+        ListForecastsResponse response = await _forecastService.ListForecasts();
 
-        return result;
+        return this.ToActionResult<ListForecastsResponse>(response);
+
+        
     }
 }

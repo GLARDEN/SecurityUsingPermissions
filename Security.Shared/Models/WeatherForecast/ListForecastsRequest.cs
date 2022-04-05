@@ -2,5 +2,5 @@
 
 public class ListForecastsRequest
 {
-    
+    public const string Route = "api/weatherforecast/forecasts";
 }

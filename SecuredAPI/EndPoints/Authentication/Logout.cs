@@ -1,21 +1,16 @@
 ﻿
 using Ardalis.ApiEndpoints;
-
-using AutoMapper;
-
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
-using Security.Data;
 
 namespace SecuredAPI.EndPoints.Authenication;
 public class Logout : EndpointBaseAsync.WithoutRequest.WithoutResult
 {
-    private readonly IMapper _mapper;
+    private readonly IAuthenticationService _authenticationService;
 
-    public Logout(IMapper mapper)
+    public Logout(IAuthenticationService authenticationService)
     {
-        _mapper = mapper;
+        _authenticationService = authenticationService;
     }
 
     /// <summary>
@@ -24,7 +19,7 @@ public class Logout : EndpointBaseAsync.WithoutRequest.WithoutResult
     [HttpPost("/authentication/logout")]
     public override async Task<ActionResult> HandleAsync(CancellationToken cancellationToken = default)
     {
-//        await _signInManager.SignOutAsync();
+        
         return Ok();
     }
 }

@@ -7,12 +7,14 @@ public class UserRole
     public string AssignedPermissions { get; private  set; }
 
 
-    public UserRole(string roleName, string assignedPermissions) 
+    public UserRole(Guid userId, string roleName, string assignedPermissions) 
     {
+        UserId = userId;
         RoleName = roleName;
         AssignedPermissions = assignedPermissions;
     }//Required by EF Core
 
+    
 
     public void UpdatePermissions(string permissions)
     {

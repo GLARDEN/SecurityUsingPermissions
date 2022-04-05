@@ -1,9 +1,12 @@
-﻿using AutoMapper;
+﻿using Ardalis.Result;
+
+using AutoMapper;
 
 using Microsoft.EntityFrameworkCore;
 
 using Security.Data;
 using Security.Shared.Models;
+using Security.Shared.Models.UserManagement;
 
 namespace SecuredAPI.Services;
 
@@ -18,7 +21,7 @@ public class ForecastService : IForecastService
         _appDbContext = appDbContext;
     }
 
-    public async Task<CreateForecastResponse> CreateForecast(CreateForecastRequest request)
+    public async Task<Result<CreateForecastResponse>> CreateForecast(CreateForecastRequest request)
     {
 
         WeatherForecast newWeatherForecast = new(request.Summary, request.Date, request.TemperatureC);
@@ -29,11 +32,17 @@ public class ForecastService : IForecastService
 
         WeatherForecastDto newForecast = _mapper.Map<WeatherForecastDto>(newWeatherForecast);
 
-        CreateForecastResponse forecastResponse = new(){Forecast = newForecast,Success = true };
+        WeatherForecastDto weatherForecastDto = _mapper.Map<WeatherForecastDto>(newForecast);
 
-        return forecastResponse;
+        return Result<CreateForecastResponse>.Success(new CreateForecastResponse()
+        {
+            Forecast = newForecast,
+            Success = true
+        });
+
+  
     }
-    public async Task<DeleteForecastResponse> DeleteForecast(DeleteForecastRequest request)
+    public async Task<Result<DeleteForecastResponse>> DeleteForecast(DeleteForecastRequest request)
     {
         var forecast = _appDbContext.WeatherForecasts.Find(request.Id);
         if (forecast != null)
@@ -42,15 +51,13 @@ public class ForecastService : IForecastService
         }
 
         var result = await _appDbContext.SaveChangesAsync();
-
-        DeleteForecastResponse response = new()
+        return Result<DeleteForecastResponse>.Success(new DeleteForecastResponse()
         {
             Success = result == 0 ? false : true
-        };
+        });
 
-        return response;
     }
-    public async Task<GetByIdForecastResponse> GetForecastById(GetByIdForecastRequest request)
+    public async Task<Result<GetByIdForecastResponse>> GetForecastById(GetByIdForecastRequest request)
     {
         GetByIdForecastResponse response = new();
         response.Success = false;
@@ -60,14 +67,20 @@ public class ForecastService : IForecastService
         if (foundForecast != null)
         {
             WeatherForecastDto forecast = _mapper.Map<WeatherForecastDto>(foundForecast);
-            response.Forecast = forecast;
-            response.Success = true;
+     
+            return Result<GetByIdForecastResponse>.Success(new GetByIdForecastResponse()
+            {
+                Forecast = forecast,
+                Success = true
+            }); 
+        }
+        else
+        {
+            return Result<GetByIdForecastResponse>.NotFound();
         }
 
-        return response;
-
     }
-    public async Task<ListForecastsResponse> ListForecasts(ListUsersRequest request)
+    public async Task<Result<ListForecastsResponse>> ListForecasts()
     {
         var forecastList = await _appDbContext.WeatherForecasts.ToListAsync(); 
         var forecasts = _mapper.Map<List<WeatherForecastDto>>(forecastList);
@@ -77,11 +90,17 @@ public class ForecastService : IForecastService
             Success = true
         };
 
-        return response;
+        return Result<ListForecastsResponse>.Success(new ListForecastsResponse()
+        {
+            Success = true,
+            Forecasts = forecasts
+        }); ;
+
+        
     }
-    public async Task<UpdateForecastResponse> UpdateForecast(UpdateForecastRequest request)
+    public async Task<Result<UpdateForecastResponse>> UpdateForecast(UpdateForecastRequest request)
     {
-        UpdateForecastResponse response = new() {Forecast = null, Success=false };
+        UpdateForecastResponse response = new() { Success=false };
         try
         {
             WeatherForecast? forecast = await _appDbContext.WeatherForecasts.FindAsync(request.Forecast.Id);
@@ -98,19 +117,21 @@ public class ForecastService : IForecastService
             if (result != 0)
             {
                 WeatherForecastDto weatherForecastDto = _mapper.Map<WeatherForecastDto>(forecast);
-                response = new()
+                return Result<UpdateForecastResponse>.Success(new UpdateForecastResponse()
                 {
                     Forecast = weatherForecastDto,
                     Success = true
-                };
-
+                });
             }
-
-            return response;
+            else
+            {
+                return Result<UpdateForecastResponse>.Error("Failed to update requested forecast.");
+            }
+           
         } catch (Exception ex)
         {
             Console.WriteLine(ex.ToString());
-            return new UpdateForecastResponse() { Success = false };
+            return Result<UpdateForecastResponse>.Error(ex.Message);
         }
     }
 }

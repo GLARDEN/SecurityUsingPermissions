@@ -48,7 +48,7 @@ public class AuthenticationService : IAuthenticationService
     {
         LoginResponseDto loginResponse = new();
 
-        User user = await _appDbContext.Users.Include(u => u.UserRoles).FirstOrDefaultAsync(u => u.Email.ToLower().Equals(loginRequest.Email.ToLower()));
+        User? user = await _appDbContext.Users.Include(u => u.UserRoles).FirstOrDefaultAsync(u => u.Email.ToLower().Equals(loginRequest.Email.ToLower()));
 
         if (user == null)
         {
@@ -145,7 +145,7 @@ public class AuthenticationService : IAuthenticationService
         List<string> assignedPermissions = userRoles.Select(ur => ur.AssignedPermissions).ToList();
 
         if (!assignedPermissions.Any())
-            return null;
+            return "";
 
         //thanks to https://stackoverflow.com/questions/5141863/how-to-get-distinct-characters
         var packedPermissionsForUser = new string(string.Concat(assignedPermissions).Distinct().ToArray());

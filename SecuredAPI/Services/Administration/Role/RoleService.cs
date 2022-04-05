@@ -80,7 +80,7 @@ public class RoleService : IRoleService
 
         var roleList = await _appDbContext.Roles.Where(r => r.Enabled).ToListAsync();
 
-        if (roleList != null || roleList.Count > 0)
+        if (roleList != null || roleList?.Count > 0)
         {
             rolesResponse.Roles = _mapper.Map<List<RoleDto>>(roleList);
             rolesResponse.Success = true;

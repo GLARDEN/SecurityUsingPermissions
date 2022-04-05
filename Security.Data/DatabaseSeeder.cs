@@ -31,6 +31,8 @@ public class DatabaseCreator : IDatabaseCreator
     {
 
         CreateForecasts();
+        CreateAdminUser();
+        CreateTestUsers();
     }
 
     private void CreateForecasts()
@@ -70,26 +72,21 @@ public class DatabaseCreator : IDatabaseCreator
 
             forecastUser.AssignRole("Forecast User", forecastPermissions);
 
-            testUsers.Add(forecastUser);
-                     
+            //await _appDbContext.Users.AddRangeAsync(forecastUser);
+            //await _appDbContext.SaveChangesAsync();
 
             List<string> userManagementPermissions = permissionsToDisplay.Where(p => p.GroupName == "User Management").Select(p => p.PermissionName).ToList();
 
 
             CreatePasswordHash("useradmin", out byte[] passwordHash1, out byte[] passwordSalt1);
 
-            User userAdmin = new("userAdmin@test.com", passwordHash1, passwordSalt1);
+            User userAdmin = new("um@test.com", passwordHash1, passwordSalt1);
 
-            forecastUser.AssignRole("User Management", userManagementPermissions);
+            userAdmin.AssignRole("User Management", userManagementPermissions);
 
-
-
-
+            testUsers.Add(forecastUser);
+            testUsers.Add(userAdmin);
             await _appDbContext.Users.AddRangeAsync(testUsers);
-
-
-
-
             await _appDbContext.SaveChangesAsync();
 
         }).GetAwaiter().GetResult();

@@ -2,7 +2,7 @@
 
 public class DeleteForecastResponse
 {
-    
+   
     public bool Success{get;set;}
     
 

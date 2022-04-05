@@ -5,7 +5,6 @@ namespace BlazorClient.Services;
 public class WeatherForecastService
 {
     private readonly IHttpService _httpService;
-    
 
     public WeatherForecastService(IHttpService httpService)
     {
@@ -22,8 +21,7 @@ public class WeatherForecastService
             TemperatureC=forecastDto.TemperatureC
         };
 
-
-        var response = await _httpService.HttpPutAsync<CreateForecastResponse>("weatherforecasts/create", request);
+        var response = await _httpService.HttpPutAsync<CreateForecastResponse>(CreateForecastRequest.Route, request);
         if (response.Success)
         {
             forecastDto = response.Forecast;
@@ -36,7 +34,7 @@ public class WeatherForecastService
 
     public async Task<List<WeatherForecastDto>> ListAsync()
     {        
-        var response = await _httpService.HttpPostAsync<ListForecastsResponse>("weatherforecasts/list", new ListUsersRequest());
+        var response = await _httpService.HttpGetAsync<ListForecastsResponse>(ListForecastsRequest.Route);
         if (response.Forecasts != null) 
         {
             return response.Forecasts.ToList();
@@ -54,13 +52,11 @@ public class WeatherForecastService
             Forecast = forecastDto
         };
 
-
-        var response = await _httpService.HttpPutAsync<UpdateForecastResponse>("weatherforecasts/update", request);
+        var response = await _httpService.HttpPutAsync<UpdateForecastResponse>(UpdateForecastRequest.Route, request);
         if (response.Success)
         {
             forecastDto = response.Forecast;
             forecastDto.IsEditing = false;
-           
         }
 
         return forecastDto;
@@ -73,7 +69,7 @@ public class WeatherForecastService
             Id = forecastDto.Id
         };
 
-        var response = await _httpService.HttpPostAsync<DeleteForecastResponse>("weatherforecasts/delete", request);
+        var response = await _httpService.HttpPostAsync<DeleteForecastResponse>(DeleteForecastRequest.Route, request);
         return response;
     }
 }

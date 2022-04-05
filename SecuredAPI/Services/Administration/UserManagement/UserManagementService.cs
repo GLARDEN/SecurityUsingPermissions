@@ -25,15 +25,13 @@ public class UserManagementService : IUserManagementService
     {
         try
         {
-            var userRoles = await _appDbContext.UserRoles.Where(ur => ur.UserId.Equals(Guid.NewGuid())).Select(ur => ur.RoleName).ToListAsync();
-
             var userList = await _appDbContext.Users.Select(u =>
                                                         new UserSummaryDto
                                                         {
                                                             Id = u.Id,
                                                             Email = u.Email,
                                                             CreatedWhen = u.CreatedWhen,
-                                                            RoleNames = _appDbContext.UserRoles.Where(ur => ur.UserId.Equals(u.Id)).Select(ur => ur.RoleName),
+                                                            RoleNames = u.UserRoles.Where(ur => ur.UserId.Equals(u.Id)).Select(ur => ur.RoleName),
                                                         }).ToListAsync();
 
 
@@ -87,7 +85,7 @@ public class UserManagementService : IUserManagementService
         {
             foreach (KeyValuePair<string, IEnumerable<string>> kvp in request.Roles)
             {
-                UserRole newUserRole = new(kvp.Key, kvp.Value.PackPermissionsNames());
+                UserRole newUserRole = new(request.UserId, kvp.Key, kvp.Value.PackPermissionsNames());
 
                 _appDbContext.UserRoles.Add(newUserRole);
             }
@@ -123,7 +121,7 @@ public class UserManagementService : IUserManagementService
             {
                 foreach (KeyValuePair<string, IEnumerable<string>> kvp in userRolesToCreate)
                 {
-                    UserRole newUserRole = new(kvp.Key, kvp.Value.PackPermissionsNames());
+                    UserRole newUserRole = new(request.UserId, kvp.Key, kvp.Value.PackPermissionsNames());
 
                     _appDbContext.UserRoles.Add(newUserRole);
                 }

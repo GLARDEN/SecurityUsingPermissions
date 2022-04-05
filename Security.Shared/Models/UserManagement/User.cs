@@ -11,7 +11,11 @@ public class User
     public byte[] PasswordHash { get; private set; } = null!;
     public byte[] PasswordSalt { get; private set; } = null!;
     public DateTime CreatedWhen { get; private set; } = DateTime.Now;
-    public IEnumerable<UserRole> UserRoles { get; private set; } 
+
+
+    private readonly List<UserRole> _userRoles = new List<UserRole>();
+    public IEnumerable<UserRole> UserRoles => _userRoles;
+
 
     public User() { }
 
@@ -27,7 +31,7 @@ public class User
         Email = email;
         PasswordHash = passwordHash;
         PasswordSalt = passwordSalt;
-        UserRoles = userRoles;
+        _userRoles.AddRange(userRoles);
     }
 
     public void SetPasswordHash(byte[] passwordHash, byte[] passwordSalt)
@@ -48,7 +52,10 @@ public class User
 
         if(!UserRoles.Any(ur => ur.RoleName.ToLower() == roleName.ToLower()))
         {
-            UserRole newRole = new(roleName,permissionNames.PackPermissionsNames());
+            var permissions = permissionNames.PackPermissionsNames();
+            UserRole newRole = new(Id, roleName, permissions);
+            
+            _userRoles.Add(newRole);
         }
     }
 

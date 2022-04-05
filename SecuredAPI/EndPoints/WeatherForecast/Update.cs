@@ -30,7 +30,7 @@ public class Update : EndpointBaseAsync
     /// <summary>
     /// Get a list of weather forecasts
     /// </summary>
-    [HttpPut("api/weatherforecasts/update")]
+    [HttpPut(UpdateForecastRequest.Route)]
     [HasPermission(Permission.ForecastUpdate)]
     public override async Task<UpdateForecastResponse> HandleAsync([FromBody] UpdateForecastRequest request, CancellationToken cancellationToken = default)
     {

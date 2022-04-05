@@ -34,5 +34,5 @@ public enum Permission : ushort
     UserRoleDelete = 33,
 
     [Display(GroupName = "Admin", Name = "AccessAll", Description = "This allows the user to access every feature")]
-    AccessAll = ushort.MaxValue
+    AccessAll = 4567
 }

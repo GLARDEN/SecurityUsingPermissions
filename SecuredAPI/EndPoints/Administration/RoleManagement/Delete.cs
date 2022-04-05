@@ -19,8 +19,7 @@ public class Delete : EndpointBaseAsync
                         .WithActionResult<DeleteRoleResponse>
 {
     private readonly IRoleService _roleService;
-    private readonly AppDbContext _appDbContext;
-
+    
     public Delete(IRoleService roleService)
     {
         _roleService = roleService;
