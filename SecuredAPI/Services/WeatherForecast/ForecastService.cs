@@ -116,10 +116,10 @@ public class ForecastService : IForecastService
 
             if (result != 0)
             {
-                WeatherForecastDto weatherForecastDto = _mapper.Map<WeatherForecastDto>(forecast);
+                //WeatherForecastDto weatherForecastDto = _mapper.Map<WeatherForecastDto>(forecast);
                 return Result<UpdateForecastResponse>.Success(new UpdateForecastResponse()
                 {
-                    Forecast = weatherForecastDto,
+                  //  Forecast = weatherForecastDto,
                     Success = true
                 });
             }

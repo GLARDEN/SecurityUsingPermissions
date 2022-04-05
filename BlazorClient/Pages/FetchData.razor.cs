@@ -61,10 +61,10 @@ namespace BlazorClient.Pages
         {            
             if(forecast.Id > 0)
             {
-                var updatedForecast = await WeatherForecastService.UpdateAsync(forecast);
-                forecast.Summary = updatedForecast.Summary;
-                forecast.IsEditing = updatedForecast.IsEditing;
-                forecast.TemperatureC = updatedForecast.TemperatureC;
+                await WeatherForecastService.UpdateAsync(forecast);
+                //forecast.Summary = updatedForecast.Summary;
+                //forecast.IsEditing = updatedForecast.IsEditing;
+                //forecast.TemperatureC = updatedForecast.TemperatureC;
             }
             else
             {

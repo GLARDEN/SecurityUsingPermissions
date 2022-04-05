@@ -45,7 +45,7 @@ public class WeatherForecastService
         }
     }
 
-    public async Task<WeatherForecastDto> UpdateAsync(WeatherForecastDto forecastDto)
+    public async Task UpdateAsync(WeatherForecastDto forecastDto)
     {
         UpdateForecastRequest request = new()
         {
@@ -54,12 +54,9 @@ public class WeatherForecastService
 
         var response = await _httpService.HttpPutAsync<UpdateForecastResponse>(UpdateForecastRequest.Route, request);
         if (response.Success)
-        {
-            forecastDto = response.Forecast;
+        { 
             forecastDto.IsEditing = false;
         }
-
-        return forecastDto;
     }
 
     public async Task<DeleteForecastResponse> DeleteAsync(WeatherForecastDto forecastDto)
