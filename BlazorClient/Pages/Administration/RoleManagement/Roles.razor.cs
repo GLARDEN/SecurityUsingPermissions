@@ -4,6 +4,7 @@ using BlazorClient.Services;
 using Security.Shared.Models.Administration.RoleManagement;
 using System;
 using BlazorClient.Providers;
+using Security.Shared.Models.Administration.Role;
 
 namespace BlazorClient.Pages.Administration.RoleManagement;
 
@@ -13,7 +14,7 @@ public partial class Roles
     public NavigationManager NavigationManager { get; set; } = null!;
 
     [Inject] 
-    protected StateProvider StateProvider { get; set; } = null!;
+    protected IAppStateProvider<RoleDto> StateProvider { get; set; } = null!;
 
     [Inject]
     public IRoleService RoleService { get; set; }
@@ -38,25 +39,29 @@ public partial class Roles
         _roleList = await RoleService.ListRoles();
     }
 
-    public void Create()
+    private void CreateNewRole()
     {
-
+       StateProvider.State =null;
+       NavigationManager.NavigateTo("/RoleManagement/CreateOrEditRole");
     }
-
-    private void EditPermissions(RoleDto role)
+    private void EditRole(RoleDto roleDto)
     {
-        StateProvider.State = role;
-        NavigationManager.NavigateTo("RoleManagement/EditRolePermissions");
+        StateProvider.State = roleDto;
+        NavigationManager.NavigateTo("RoleManagement/CreateOrEditRole");
     }
 
     private async Task Delete(RoleDto role)
     {
-
-        var result = await RoleService.DeleteAsync(role);
-        if (result.Success)
+        DeleteRoleRequest deleteRoleRequest = new()
         {
-            _roleList = await RoleService.ListRoles();
-        }
+            RoleId = role.Id
+        };
+
+
+        await RoleService.DeleteAsync(deleteRoleRequest);
+       
+        _roleList.Remove(role);
+       
     }
 
     public void Dispose()

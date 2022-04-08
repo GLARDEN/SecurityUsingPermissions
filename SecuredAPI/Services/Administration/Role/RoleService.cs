@@ -1,15 +1,8 @@
 ﻿using AutoMapper;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Reflection;
-using System.Runtime.CompilerServices;
 using Security.Shared.Models.Administration.Role;
 using Security.Shared.Models.Administration.RoleManagement;
 using Security.Shared.Permissions.Extensions;
 using Ardalis.Result;
-using Security.Shared.Models.UserManagement;
 using Ardalis.GuardClauses;
 
 namespace SecuredAPI.Services;
@@ -31,12 +24,14 @@ public class RoleService : IRoleService
     {
         try
         {
+            Guard.Against.Null(createRoleRequest,nameof(createRoleRequest));
+
             if (await RoleExists(createRoleRequest.Name))
             {
                 return Result<CreateRoleResponse>.Error("Role already exists.");
             }
 
-            Role newRole = new(createRoleRequest.Name, createRoleRequest.Description, true, createRoleRequest.Permissions);
+            Role newRole = new(createRoleRequest.Name, createRoleRequest.Description, true, createRoleRequest.Permissions.PackPermissionsNames());
 
             await _appDbContext.Roles.AddAsync(newRole);
 
@@ -45,14 +40,13 @@ public class RoleService : IRoleService
             if (result > 0)
             {
                 return Result<CreateRoleResponse>.Success(new CreateRoleResponse()
-                {
-                    Success = true,
+                {   
                     Role = _mapper.Map<RoleDto>(newRole)
                 });
             }
             else
             {
-                return Result<CreateRoleResponse>.Error($"Failed to save role {newRole.RoleName}.");
+                return Result<CreateRoleResponse>.Error($"Failed to save role {newRole.Name}.");
             }
         }
         catch (Exception ex)
@@ -64,9 +58,9 @@ public class RoleService : IRoleService
     public async Task<Result<DeleteRoleResponse>> Delete(DeleteRoleRequest deleteRoleRequest)
     {
         Guard.Against.Null(deleteRoleRequest, nameof(deleteRoleRequest), "Delete request object is required.");
-        Guard.Against.Null(deleteRoleRequest.Role, nameof(deleteRoleRequest.Role), "Request must contain a role object");
+        Guard.Against.Default(deleteRoleRequest.RoleId, nameof(deleteRoleRequest.RoleId), "Request must contain a valid role id");
 
-        var role = _appDbContext.Roles.Find(deleteRoleRequest.Role.RoleName);
+        var role = _appDbContext.Roles.Find(deleteRoleRequest.RoleId);
         if (role != null)
         {
             _appDbContext.Roles.Remove(role);
@@ -83,7 +77,7 @@ public class RoleService : IRoleService
         }
         else
         {
-            return Result<DeleteRoleResponse>.Error($"Failed to delete role {deleteRoleRequest.Role.RoleName}.");
+            return Result<DeleteRoleResponse>.Error($"Failed to delete role {role.Name}.");
         }
     }
 
@@ -94,8 +88,7 @@ public class RoleService : IRoleService
             var roleList = await _appDbContext.Roles.Where(r => r.Enabled).ToListAsync();
 
             return Result<ListRolesResponse>.Success(new ListRolesResponse()
-            {
-                Success = true,
+            {   
                 Roles = _mapper.Map<List<RoleDto>>(roleList) ?? new List<RoleDto>()
             });
 
@@ -106,37 +99,39 @@ public class RoleService : IRoleService
         }
     }
 
-    public async Task<Result<EditRoleResponse>> EditAsync(EditRoleRequest request)
+    public async Task<Result<UpdateRoleResponse>> UpdateAsync(UpdateRoleRequest request)
     {
         try
         {
-            Role role = await _appDbContext.Roles.FirstOrDefaultAsync(r => r.RoleName == request.RoleName);
+            Role? role = await _appDbContext.Roles.FirstOrDefaultAsync(r => r.Id == request.Id);
 
             if (role == null)
             {
-                return Result<EditRoleResponse>.NotFound();
+                return Result<UpdateRoleResponse>.NotFound();
             }
             else
-            {                
+            {
+                role.RenameRole(request.Name);
+                role.ChangeRoleDescription(request.Description);
                 role.UpdatePermissions(request.PermissionNames);
 
                 await _appDbContext.SaveChangesAsync();
 
-                return Result<EditRoleResponse>.Success(new EditRoleResponse()
+                return Result<UpdateRoleResponse>.Success(new UpdateRoleResponse()
                 {
-                    Success = true,                  
+                    Role = _mapper.Map<RoleDto>(role)
                 });
             }
         }
         catch (Exception ex)
         {
-            return Result<EditRoleResponse>.Error(ex.Message);
+            return Result<UpdateRoleResponse>.Error(ex.Message);
         }
     }
 
     public async Task<bool> RoleExists(string roleName)
     {
-        bool roleExists = await _appDbContext.Roles.AnyAsync(r => r.RoleName.ToLower() == roleName.ToLower());
+        bool roleExists = await _appDbContext.Roles.AnyAsync(r => r.Name.ToLower() == roleName.ToLower());
         return roleExists;
     }
 }

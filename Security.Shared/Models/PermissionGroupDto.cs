@@ -5,9 +5,9 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Security.Shared.Models.UserManagement;
-public class RoleDisplayDto
+public class PermissionGroupDto
 {
-    public string RoleName { get; set; } = null!;
+    public string GroupName { get; set; } = null!;
     public List<PermissionInfoDto> Permissions { get; set; } = null!;
-    public bool IsSelected { get; set; }
+    
 }

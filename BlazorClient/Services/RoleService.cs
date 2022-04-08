@@ -18,38 +18,26 @@ public class RoleService : IRoleService
         _httpService = httpService;
     }
 
-    public async Task<CreateRoleResponse> CreateAsync(CreateRoleRequest createRoleRequest)
+    public async Task<RoleDto> CreateAsync(CreateRoleRequest createRoleRequest)
     {
-        var createRoleResponse = await _httpService.HttpPostAsync<CreateRoleResponse>(CreateRoleRequest.Route, createRoleRequest);
-
-        if (!createRoleResponse.Success)
-        {
-            return null;
-        }
-
-        return createRoleResponse;
+        return (await _httpService.HttpPostAsync<CreateRoleResponse>(CreateRoleRequest.Route, createRoleRequest)).Role;
     }
 
-    public async Task<DeleteRoleResponse> DeleteAsync(RoleDto role)
+    public async Task<RoleDto> UpdateAsync(UpdateRoleRequest updateRoleRequest)
     {
-        DeleteRoleRequest deleteRoleRequest = new()
-        {
-            Role = role
-        };
+        return (await _httpService.HttpPostAsync<UpdateRoleResponse>(UpdateRoleRequest.Route, updateRoleRequest)).Role;
+    }
 
-        var deleteRoleResponse = await _httpService.HttpPostAsync<DeleteRoleResponse>(DeleteRoleRequest.Route, deleteRoleRequest);
-
-        if (!deleteRoleResponse.Success)
-        {
-            return null;
-        }
-
-        return deleteRoleResponse;
+    public async Task DeleteAsync(DeleteRoleRequest deleteRoleRequest)
+    {        
+       await _httpService.HttpPostAsync<DeleteRoleResponse>(DeleteRoleRequest.Route, deleteRoleRequest);
     }
 
     public async Task<List<RoleDto>> ListRoles()
     {
-       return (await _httpService.HttpGetAsync<ListRolesResponse>(ListRolesRequest.Route)).Roles.ToList();
+        return (await _httpService.HttpGetAsync<ListRolesResponse>(ListRolesRequest.Route)).Roles.ToList();
 
     }
 }
+
+

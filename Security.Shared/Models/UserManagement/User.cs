@@ -11,28 +11,20 @@ public class User
     public byte[] PasswordHash { get; private set; } = null!;
     public byte[] PasswordSalt { get; private set; } = null!;
     public DateTime CreatedWhen { get; private set; } = DateTime.Now;
-
-
     private readonly List<UserRole> _userRoles = new List<UserRole>();
     public IEnumerable<UserRole> UserRoles => _userRoles;
 
-
     public User() { }
 
-    public User(string email, byte[] passwordHash, byte[] passwordSalt)
+    public User(Guid id, string email, byte[] passwordHash, byte[] passwordSalt)
     {
+        Guard.Against.Default(id, nameof(id));
+        Id = id;
         Email = email;
         PasswordHash = passwordHash;
         PasswordSalt = passwordSalt;
     }
 
-    public User(string email, byte[] passwordHash, byte[] passwordSalt, IEnumerable<UserRole> userRoles)
-    {
-        Email = email;
-        PasswordHash = passwordHash;
-        PasswordSalt = passwordSalt;
-        _userRoles.AddRange(userRoles);
-    }
 
     public void SetPasswordHash(byte[] passwordHash, byte[] passwordSalt)
     {
@@ -45,14 +37,14 @@ public class User
         Email = email;
     }
 
-    public void AssignRole(string roleName,List<string> permissionNames) 
+    public void AssignRole(string roleName,string permissionNames) 
     {
         Guard.Against.NullOrEmpty(roleName,nameof(roleName), "Role Name can not be empty.");
         Guard.Against.NullOrEmpty(permissionNames, nameof(permissionNames), "User Role must have atleast one permission assigned");
 
         if(!UserRoles.Any(ur => ur.RoleName.ToLower() == roleName.ToLower()))
         {
-            var permissions = permissionNames.PackPermissionsNames();
+            var permissions = permissionNames;
             UserRole newRole = new(Id, roleName, permissions);
             
             _userRoles.Add(newRole);
@@ -63,7 +55,6 @@ public class User
     {
         Guard.Against.NullOrEmpty(roleName, nameof(roleName), "Role Name can not be empty.");
         Guard.Against.NullOrEmpty(permissions, nameof(permissions), "User Role must have atleast one permission assigned");
-
 
         UserRole roleToUpdate = UserRoles.FirstOrDefault(r => r.RoleName == roleName);
         if (roleToUpdate != null)

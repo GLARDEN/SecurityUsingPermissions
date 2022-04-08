@@ -14,7 +14,7 @@ namespace BlazorClient.Pages.Administration.RoleManagement;
 public partial class EditRolePermissions : ComponentBase
 {
     [Inject]
-    protected StateProvider StateProvider { get; set; } = null!;
+    protected IAppStateProvider<RoleDto> StateProvider { get; set; } = null!;
     [Inject]
     public IRoleService RoleService { get; set; }
 
@@ -25,7 +25,7 @@ public partial class EditRolePermissions : ComponentBase
 
     protected override void OnInitialized()
     {
-        SelectedRole = (RoleDto)StateProvider.State;
+        SelectedRole =StateProvider.State;
 
         StateProvider.State = null;
     }
@@ -36,7 +36,7 @@ public partial class EditRolePermissions : ComponentBase
     }
     private void ChangePropertyValue()
     {
-        SelectedRole = ((RoleDto)StateProvider.State);
+        SelectedRole = StateProvider.State;
     }
 
     private bool IsPermissionSelected(Permission permission)

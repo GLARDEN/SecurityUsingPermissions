@@ -91,7 +91,7 @@ public class AuthenticationService : IAuthenticationService
 
         CreatePasswordHash(password, out byte[] passwordHash, out byte[] passwordSalt);
 
-        User _newUser = new User(registrationRequest.Email, passwordHash, passwordSalt);
+        User _newUser = new User(Guid.NewGuid(),registrationRequest.Email, passwordHash, passwordSalt);
 
         _appDbContext.Users.Add(_newUser);
 

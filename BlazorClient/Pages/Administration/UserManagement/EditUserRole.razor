@@ -15,7 +15,7 @@
         </thead>
         <tbody id="permission-selection">
 
-            @foreach (var role in _rolesDisplay)
+@*            @foreach (var role in _rolesDisplay)
             {
                 <tr>
                     <td class="align-top">
@@ -40,7 +40,7 @@
                         </table>
                     </td>
                 </tr>
-            }
+            }*@
             <tr>
                 <td>
                     <button class="btn btn-info" @onclick="(() => SaveAsync())">Save</button>

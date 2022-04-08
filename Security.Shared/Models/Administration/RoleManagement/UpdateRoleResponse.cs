@@ -2,12 +2,12 @@
 
 namespace Security.Shared.Models.Administration.RoleManagement;
 
-public class EditRoleResponse
+public class UpdateRoleResponse
 {
-    public bool Success { get; set; }
 
+    public RoleDto Role { get; set; } = new RoleDto();
 
-    public EditRoleResponse()
+    public UpdateRoleResponse()
     {
 
     }

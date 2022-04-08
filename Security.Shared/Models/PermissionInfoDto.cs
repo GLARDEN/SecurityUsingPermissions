@@ -7,4 +7,8 @@ public class PermissionInfoDto
     public string PermissionName { get; set; }
     public bool IsSelected { get; set; }
 
+    public override string ToString()
+    {
+        return $"{ShortName} - {Description}";
+    }
 }

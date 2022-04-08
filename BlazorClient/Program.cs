@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 
 using Security.Shared.Authorization.Handlers;
 using Security.Shared.Authorization.Providers;
+using Security.Shared.Models.Administration.RoleManagement;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
@@ -42,11 +43,7 @@ builder.Services.AddAuthorizationCore();
 builder.Services.AddSingleton<IAuthorizationPolicyProvider, AuthorizationPolicyProvider>();
 builder.Services.AddSingleton<IAuthorizationHandler, PermissionPolicyHandler>();
 
-builder.Services.AddSingleton<StateProvider>();
-
-
-
-
+builder.Services.AddScoped(typeof(IAppStateProvider<>), typeof(AppStateProvider<>));
 
 // register the services
 builder.Services.AddScoped<WeatherForecastService>();

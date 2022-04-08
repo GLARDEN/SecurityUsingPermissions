@@ -17,6 +17,8 @@ public class AutoMapping :Profile
            // .ForMember(dto => dto.Permissions,
           //  opt => opt.MapFrom(ur => ur.AssignedPermissions.ConvertPackedPermissionToNames()));
 
-        CreateMap<Role, RoleDto>();
+        CreateMap<Role, RoleDto>()
+            .ForMember(dto => dto.PermissionsInRole,
+            opt => opt.MapFrom(r => r.PermissionsInRole.ConvertPackedPermissionToNames()));
     }
 }

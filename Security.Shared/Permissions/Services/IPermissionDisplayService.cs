@@ -4,5 +4,5 @@ namespace BlazorClient.Services;
 
 public interface IPermissionDisplayService
 {
-    List<RoleDisplayDto> GetRolesForDisplay(bool excludeFilteredPermissions=false);
+    List<PermissionGroupDto> GroupPermissionsForDisplay(bool excludeFilteredPermissions=false);
 }

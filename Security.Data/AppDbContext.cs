@@ -26,11 +26,11 @@ public class AppDbContext : DbContext
 
         builder.Entity<UserRole>().HasKey(x => new { x.UserId, x.RoleName });       
 
-        builder.Entity<Role>()  
-               .HasIndex(x => x.RoleName)
+        builder.Entity<Role>()              
+               .HasIndex(x => x.Name)
                .IsUnique();
 
-        builder.Entity<Role>().HasKey(x => x.RoleName);
+        builder.Entity<Role>().HasKey(x => x.Id);
 
         base.OnModelCreating(builder);
     }

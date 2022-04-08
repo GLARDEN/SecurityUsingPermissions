@@ -85,13 +85,13 @@ public class UserService : IUserService
         return (await _httpService.HttpGetAsync<ListUsersResponse>(ListUsersRequest.Route)).RegisteredUsers;
     }
 
-    public async Task<EditUserRolesResponse> UpdateUserAccess(Guid userId, List<RoleDisplayDto> selectedRoles)
+    public async Task<EditUserRolesResponse> UpdateUserAccess(Guid userId, List<UserRoleDto> selectedRoles)
     {
         EditUserRolesRequest editUserRolesRequest = new()
         {
             UserId = userId,
-            Roles = selectedRoles.Select(x => new KeyValuePair<string, IEnumerable<string>>(x.RoleName, x.Permissions.Select(p => p.PermissionName)))
-                                 .ToDictionary(x => x.Key, x => x.Value)     
+            //Roles = selectedRoles.Select(x => new KeyValuePair<string, IEnumerable<string>>(x.RoleName, x.Permissions.Select(p => p.PermissionName)))
+            //                     .ToDictionary(x => x.Key, x => x.Value)     
         };
 
         var result = await _httpService.HttpPostAsync<EditUserRolesResponse>("administration/usermanagement/editUserRoles", editUserRolesRequest);

@@ -23,14 +23,14 @@ public class PermissionDisplayService : IPermissionDisplayService
     /// <param name="enumType">type of the enum permissions</param>
     /// <param name="excludeFilteredPermissions">if trie then it won't show permissions where the AutoGenerateFilter is true</param>
     /// <returns>a list of PermissionDisplay classes containing the data</returns>
-    public List<RoleDisplayDto> GetRolesForDisplay(bool excludeFilteredPermissions)
+    public List<PermissionGroupDto> GroupPermissionsForDisplay(bool excludeFilteredPermissions=false)
     {
-        List<RoleDisplayDto> result = new();
+        List<PermissionGroupDto> result = new();
 
-        string roleName = string.Empty;
-        string currentRoleName = string.Empty;
+        string groupName = string.Empty;
+        string currentGroupName = string.Empty;
 
-        RoleDisplayDto roleDisplay = null;
+        PermissionGroupDto permissionGroup = null;
 
         foreach (var permissionName in Enum.GetNames(_permissionType))
         {
@@ -50,13 +50,13 @@ public class PermissionDisplayService : IPermissionDisplayService
             if (excludeFilteredPermissions && displayAttribute.GetAutoGenerateFilter() == true)
                 continue;
 
-            roleName = displayAttribute.GroupName ?? "";
+            groupName = displayAttribute.GroupName ?? "";
 
-            if (roleName != currentRoleName)
-            {  
-                currentRoleName = roleName;
-                roleDisplay = new RoleDisplayDto() { RoleName = currentRoleName, Permissions = new() };
-                result.Add(roleDisplay);
+            if (groupName != currentGroupName)
+            {
+                currentGroupName = groupName;
+                permissionGroup = new PermissionGroupDto() { GroupName = currentGroupName, Permissions = new() };
+                result.Add(permissionGroup);
             }
 
             PermissionInfoDto permissionInfo = new PermissionInfoDto()
@@ -67,7 +67,7 @@ public class PermissionDisplayService : IPermissionDisplayService
                 IsSelected = false
             };
 
-            roleDisplay?.Permissions.Add(permissionInfo);
+            permissionGroup?.Permissions.Add(permissionInfo);
         }
 
         return result;

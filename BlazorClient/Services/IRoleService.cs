@@ -6,9 +6,8 @@ namespace BlazorClient.Services;
 
 public interface IRoleService {
 
-    Task<CreateRoleResponse> CreateAsync(CreateRoleRequest createRoleRequest);
-    Task<DeleteRoleResponse> DeleteAsync(RoleDto role);
+    Task<RoleDto> CreateAsync(CreateRoleRequest createRoleRequest);
+    Task<RoleDto> UpdateAsync(UpdateRoleRequest createRoleRequest);
+    Task DeleteAsync(DeleteRoleRequest deleteRoleRequest);
     Task<List<RoleDto>> ListRoles();
-    
-
 }

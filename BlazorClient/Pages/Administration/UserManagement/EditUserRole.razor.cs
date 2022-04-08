@@ -26,11 +26,11 @@ public partial class EditUserRole
     [Parameter]
     public EventCallback<bool> IsVisibleChanged { get; set; }
 
-    private List<RoleDisplayDto> _rolesDisplay;
+   // private List<RoleDisplayDto> _rolesDisplay;
 
     protected override async Task OnInitializedAsync()
     {
-        _rolesDisplay = PermissionDisplayService.GetRolesForDisplay();
+     //   _rolesDisplay = PermissionDisplayService.GetRolesForDisplay();
 
         //SelectedUser.RoleNames.ForEach(ur =>
         //{
@@ -52,16 +52,16 @@ public partial class EditUserRole
        
         selectedPermission.IsSelected = (bool)checkedValue;
         
-        bool roleSelected = _rolesDisplay.Any(r => r.RoleName == roleName &&  r.Permissions.Any(p => p.IsSelected));        
-        _rolesDisplay.FirstOrDefault(r => r.RoleName == roleName).IsSelected = roleSelected;
+        //bool roleSelected = _rolesDisplay.Any(r => r.RoleName == roleName &&  r.Permissions.Any(p => p.IsSelected));        
+        //_rolesDisplay.FirstOrDefault(r => r.RoleName == roleName).IsSelected = roleSelected;
 
     }
 
     protected async Task SaveAsync()
     {
-        var selectedRoles = _rolesDisplay.Where(r => r.Permissions.Any(p => p.IsSelected)).ToList();
+        //var selectedRoles = _rolesDisplay.Where(r => r.Permissions.Any(p => p.IsSelected)).ToList();
 
-        var result = await UserService.UpdateUserAccess(SelectedUser.Id, selectedRoles);
+        //var result = await UserService.UpdateUserAccess(SelectedUser.Id, selectedRoles);
         await SelectedUserChanged.InvokeAsync(SelectedUser);
         IsVisible = !IsVisible;
         await IsVisibleChanged.InvokeAsync(IsVisible);

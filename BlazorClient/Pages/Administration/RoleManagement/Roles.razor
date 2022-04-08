@@ -4,8 +4,9 @@
 <h3>@PageTitle</h3>
 
 
-<a class="btn btn-primary" href="Create">Create A New Role</a>
-<p></p>
+
+<button class="btn btn-info me-1" @onclick="(() => CreateNewRole())">Create A New Role</button>
+
 
 @if (_roleList == null || _roleList?.Count() == 0)
 {
@@ -17,7 +18,7 @@ else
         <thead>
             <tr>
                 <th>
-                    Role Group
+                    Role
                 </th>
                 <th>
                     Description
@@ -33,20 +34,20 @@ else
             {
                 <tr>
                     <td>
-                        @role.RoleName
+                        @role.Name
                     </td>
                     <td>
                         @role.Description
                     </td>
                     <td>
                         
-                        @foreach(var permissionName in role.PermissionsInRole.ConvertPackedPermissionToNames())
+                        @foreach(var permissionName in role.PermissionsInRole)
                         {
                             <li>@permissionName</li>
                         }
                     </td>
                     <td>
-                           <button class="btn btn-info me-1" @onclick="(() => EditPermissions(role))">Edit</button>
+                           <button class="btn btn-info me-1" @onclick="(() => EditRole(role))">Edit</button>
                            <button class="btn btn-info me-1" @onclick="(() => Delete(role))">Delete</button>
                     </td>
                 </tr>

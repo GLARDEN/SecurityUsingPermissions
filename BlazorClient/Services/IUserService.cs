@@ -1,4 +1,5 @@
 ﻿using Security.Shared.Models;
+using Security.Shared.Models.Administration.RoleManagement;
 using Security.Shared.Models.Authentication;
 using Security.Shared.Models.UserManagement;
 
@@ -17,5 +18,5 @@ public interface IUserService
     Task<bool> IsUserAuthenticated();
     Task<List<UserSummaryDto>> ListUsers();
     Task<EditUserResponse> Save(EditUserRequest updateRequest);
-    Task<EditUserRolesResponse> UpdateUserAccess(Guid userId, List<RoleDisplayDto> selectedRoles);
+    Task<EditUserRolesResponse> UpdateUserAccess(Guid userId, List<UserRoleDto> selectedRoles);
 }

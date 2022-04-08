@@ -15,13 +15,13 @@ using Security.Shared.Permissions;
 
 namespace SecuredAPI.EndPoints.Administration.RoleManagement;
 
-public class Edit : EndpointBaseAsync
-                        .WithRequest<EditRoleRequest>
-                        .WithActionResult<EditRoleResponse>
+public class Update : EndpointBaseAsync
+                        .WithRequest<UpdateRoleRequest>
+                        .WithActionResult<UpdateRoleResponse>
 {
     private readonly IRoleService _roleService;
 
-    public Edit(IRoleService roleService)
+    public Update(IRoleService roleService)
     {
         _roleService = roleService;
     }
@@ -29,14 +29,14 @@ public class Edit : EndpointBaseAsync
     /// <summary>
     /// Authenticates and logs user in
     /// </summary>
-    [HttpPost(EditRoleRequest.Route)]
+    [HttpPost(UpdateRoleRequest.Route)]
     [HasPermission(Permission.RoleEdit)]
-    public override async Task<ActionResult<EditRoleResponse>> HandleAsync([FromBody] EditRoleRequest editRoleRequest, CancellationToken cancellationToken = default)
+    public override async Task<ActionResult<UpdateRoleResponse>> HandleAsync([FromBody] UpdateRoleRequest editRoleRequest, CancellationToken cancellationToken = default)
     {
         {
-            EditRoleResponse response = await _roleService.EditAsync(editRoleRequest);
+            UpdateRoleResponse response = await _roleService.UpdateAsync(editRoleRequest);
 
-            return this.ToActionResult<EditRoleResponse>(response);
+            return this.ToActionResult<UpdateRoleResponse>(response);
 
         }
 }

@@ -12,7 +12,7 @@ using Security.Data;
 namespace Security.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20220404141214_init")]
+    [Migration("20220408180447_init")]
     partial class init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -26,8 +26,9 @@ namespace Security.Data.Migrations
 
             modelBuilder.Entity("Security.Shared.Models.Administration.RoleManagement.Role", b =>
                 {
-                    b.Property<string>("RoleName")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Description")
                         .IsRequired()
@@ -38,14 +39,13 @@ namespace Security.Data.Migrations
 
                     b.Property<string>("PermissionsInRole")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnName("PermissionsInRole1");
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("_permissionsInRole")
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnName("PermissionsInRole");
+                    b.Property<string>("RoleName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
 
-                    b.HasKey("RoleName");
+                    b.HasKey("Id");
 
                     b.HasIndex("RoleName")
                         .IsUnique();

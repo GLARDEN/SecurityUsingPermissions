@@ -13,15 +13,15 @@ namespace Security.Data.Migrations
                 name: "Roles",
                 columns: table => new
                 {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     RoleName = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    PermissionsInRole1 = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Enabled = table.Column<bool>(type: "bit", nullable: false),
-                    PermissionsInRole = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    PermissionsInRole = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Enabled = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Roles", x => x.RoleName);
+                    table.PrimaryKey("PK_Roles", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
