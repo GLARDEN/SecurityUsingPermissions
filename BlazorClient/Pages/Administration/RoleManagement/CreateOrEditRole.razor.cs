@@ -92,7 +92,7 @@ public partial class CreateOrEditRole
             await RoleService.UpdateAsync(request);
         }
 
-        NavigationManager.NavigateTo("roleManagement/create");
+        NavigationManager.NavigateTo("/RoleManagement/Roles");
     }
 
     private IEnumerable<string> GetSelectedPermissions()
