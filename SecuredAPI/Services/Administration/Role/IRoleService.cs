@@ -1,7 +1,6 @@
 ﻿using Ardalis.Result;
 
-using Security.Shared.Models.Administration.Role;
-using Security.Shared.Models.Administration.RoleManagement;
+using Security.Core.Models.Administration.RoleManagement;
 
 namespace SecuredAPI.Services;
 

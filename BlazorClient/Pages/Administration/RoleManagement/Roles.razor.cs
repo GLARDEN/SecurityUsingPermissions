@@ -1,10 +1,9 @@
-using Microsoft.AspNetCore.Components;
+using BlazorClient.Providers;
 using BlazorClient.Services;
 
-using Security.Shared.Models.Administration.RoleManagement;
-using System;
-using BlazorClient.Providers;
-using Security.Shared.Models.Administration.Role;
+using Microsoft.AspNetCore.Components;
+
+using Security.Core.Models.Administration.RoleManagement;
 
 namespace BlazorClient.Pages.Administration.RoleManagement;
 

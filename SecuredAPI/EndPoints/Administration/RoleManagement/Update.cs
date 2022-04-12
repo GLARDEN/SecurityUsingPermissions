@@ -1,17 +1,11 @@
 ﻿using Ardalis.ApiEndpoints;
 using Ardalis.Result.AspNetCore;
 
-using AutoMapper;
-
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
-using SecuredAPI.Services;
-
-using Security.Shared.Models.Administration.Role;
-using Security.Shared.Models.Administration.RoleManagement;
-using Security.Shared.Permissions;
+using Security.Core.Models.Administration.RoleManagement;
+using Security.Core.Permissions;
+using Security.Core.Permissions.Enums;
 
 namespace SecuredAPI.EndPoints.Administration.RoleManagement;
 
@@ -33,11 +27,9 @@ public class Update : EndpointBaseAsync
     [HasPermission(Permission.RoleEdit)]
     public override async Task<ActionResult<UpdateRoleResponse>> HandleAsync([FromBody] UpdateRoleRequest editRoleRequest, CancellationToken cancellationToken = default)
     {
-        {
-            UpdateRoleResponse response = await _roleService.UpdateAsync(editRoleRequest);
-
-            return this.ToActionResult<UpdateRoleResponse>(response);
-
-        }
-}
+        
+      UpdateRoleResponse response = await _roleService.UpdateAsync(editRoleRequest);
+      return this.ToActionResult<UpdateRoleResponse>(response);
+        
+    }
 }

@@ -1,0 +1,29 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+ </PropertyGroup>
+ 
+  <ItemGroup>
+    <PackageReference Include="Ardalis.GuardClauses" Version="4.0.1" />
+    <PackageReference Include="Ardalis.Specification" Version="6.0.1" />
+    <PackageReference Include="Ardalis.Specification.EntityFrameworkCore" Version="6.0.1" />
+    <PackageReference Include="Autofac" Version="6.3.0" />
+    <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="7.2.0" />
+    <PackageReference Include="MediatR" Version="10.0.1" />
+    <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="10.0.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Authorization" Version="6.0.4" />
+    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
+  </ItemGroup>
+ 
+  <ItemGroup>
+    <Folder Include="Authorization\Extensions\" />
+  </ItemGroup>
+ 
+  <ItemGroup>
+    <ProjectReference Include="..\Security.SharedKernel\Security.SharedKernel.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,16 +1,9 @@
 ﻿using Ardalis.ApiEndpoints;
 using Ardalis.Result.AspNetCore;
 
-using AutoMapper;
-
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
-using SecuredAPI.Services;
-
-using Security.Shared.Models;
-using Security.Shared.Models.Administration.Role;
+using Security.Core.Models.Administration.RoleManagement;
 
 namespace SecuredAPI.EndPoints.Administration.RoleManagement;
 

@@ -2,13 +2,10 @@ using BlazorClient.Providers;
 using BlazorClient.Services;
 
 using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Web;
 
-using Security.Shared.Models.Administration.Role;
-using Security.Shared.Models.Administration.RoleManagement;
-using Security.Shared.Models.UserManagement;
-using Security.Shared.Permissions.Enums;
-using Security.Shared.Permissions.Extensions;
+using Security.Core.Models;
+using Security.Core.Models.Administration.RoleManagement;
+using Security.Core.Permissions.Services;
 
 using System.Data;
 

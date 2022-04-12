@@ -1,17 +1,10 @@
 ﻿using Ardalis.ApiEndpoints;
 
-using AutoMapper;
-
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-
-using Security.Shared.Models;
-
-using Security;
-using Security.Shared;
-using SecuredAPI.Services;
-using Security.Shared.Permissions;
+using Security.Core.Models.WeatherForecast;
+using Security.Core.Permissions;
+using Security.Core.Permissions.Enums;
 
 namespace SecuredAPI.EndPoints.WeatherForecasts;
 

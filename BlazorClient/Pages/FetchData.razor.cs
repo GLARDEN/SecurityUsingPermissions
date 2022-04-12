@@ -1,10 +1,9 @@
 using Microsoft.AspNetCore.Components;
 using BlazorClient.Services;
-using Security.Shared.Models;
-using Security.Shared.Permissions.Enums;
-using Security.Shared.Permissions;
 using System.Security.Claims;
-using Security.Shared.Permissions.Helpers;
+using Security.Core.Models.WeatherForecast;
+using Security.Core.Permissions.Helpers;
+using Security.Core.Permissions.Enums;
 
 namespace BlazorClient.Pages
 {

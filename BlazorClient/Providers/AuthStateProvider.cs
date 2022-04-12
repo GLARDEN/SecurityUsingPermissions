@@ -4,8 +4,6 @@ using System.Net.Http.Headers;
 using System.Security.Claims;
 using BlazorClient.Services;
 using System.Security.Principal;
-using Security.Shared.Permissions.Constants;
-using Security.Shared.Permissions.Helpers;
 
 namespace BlazorClient.Providers;
 

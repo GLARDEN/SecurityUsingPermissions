@@ -1,8 +1,6 @@
 using Microsoft.AspNetCore.Components;
 using BlazorClient.Services;
-using Security.Shared.Permissions.Enums;
-using Security.Shared.Permissions;
-using Security.Shared.Models.UserManagement;
+using Security.Core.Models.UserManagement;
 
 namespace BlazorClient.Pages.Administration.UserManagement;
 

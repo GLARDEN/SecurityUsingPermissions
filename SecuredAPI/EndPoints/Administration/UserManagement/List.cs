@@ -3,7 +3,8 @@ using Ardalis.Result.AspNetCore;
 
 using Microsoft.AspNetCore.Mvc;
 
-using Security.Shared.Models;
+using Security.Core.Models.UserManagement;
+using Security.Core.Models.WeatherForecast;
 
 namespace SecuredAPI.EndPoints.Administration.UserManagement;
 
@@ -18,15 +19,18 @@ public class List : EndpointBaseAsync
         _userManagementService = userManagementService;
     }
 
+
     /// <summary>
-    /// Authenticates and logs user in
+    /// Get a list of weather forecasts
     /// </summary>
     [HttpGet(ListUsersRequest.Route)]
-
+    
     public override async Task<ActionResult<ListUsersResponse>> HandleAsync(CancellationToken cancellationToken = default)
     {
-        ListUsersResponse response = await _userManagementService.ListAsync();
-                
+        var response = await _userManagementService.ListAsync();
+
         return this.ToActionResult<ListUsersResponse>(response);
+
+
     }
 }

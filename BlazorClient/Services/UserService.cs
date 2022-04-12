@@ -1,13 +1,9 @@
-﻿using BlazorClient.Providers;
-using Security.Shared.Models;
-using System.Text.Json;
+﻿using System.Text.Json;
 using Microsoft.AspNetCore.Components.Authorization;
-using Security.Shared.Models.Authentication;
-using System.Net.Http;
-using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
-using System.Linq;
-using Security.Shared.Models.UserManagement;
+using Security.Core.Models;
+using Security.Core.Models.Authentication;
+using Security.Core.Models.UserManagement;
 
 namespace BlazorClient.Services;
 
@@ -33,7 +29,6 @@ public class UserService : IUserService
         return changePasswordResponse;
     }
 
-
     public async Task<bool> IsUserAuthenticated()
     {   
         return (await _authStateProvider.GetAuthenticationStateAsync()).User.Identity.IsAuthenticated;
@@ -55,6 +50,7 @@ public class UserService : IUserService
         authResult.IsAuthenticationSuccessful = true;
         return authResult;
     }
+
     public async Task Logout()
     {
         await _tokenService.RemoveTokenAsync();
@@ -85,7 +81,7 @@ public class UserService : IUserService
         return (await _httpService.HttpGetAsync<ListUsersResponse>(ListUsersRequest.Route)).RegisteredUsers;
     }
 
-    public async Task<EditUserRolesResponse> UpdateUserAccess(Guid userId, List<UserRoleDto> selectedRoles)
+    public async Task<UpdateUserResponse> UpdateUserAccess(Guid userId, List<UserRoleDto> selectedRoles)
     {
         EditUserRolesRequest editUserRolesRequest = new()
         {
@@ -94,15 +90,15 @@ public class UserService : IUserService
             //                     .ToDictionary(x => x.Key, x => x.Value)     
         };
 
-        var result = await _httpService.HttpPostAsync<EditUserRolesResponse>("administration/usermanagement/editUserRoles", editUserRolesRequest);
+        var result = await _httpService.HttpPostAsync<UpdateUserResponse>("administration/usermanagement/editUserRoles", editUserRolesRequest);
 
         return result;
     }
 
-    public async Task<EditUserResponse> Save(EditUserRequest updateRequest)
+    public async Task<UpdateUserResponse> Save(UpdateUserRequest updateRequest)
     {
 
-        var updateResult = await _httpService.HttpPostAsync<EditUserResponse>("administration/usermanagement/updateUser", updateRequest);
+        var updateResult = await _httpService.HttpPostAsync<UpdateUserResponse>("administration/usermanagement/updateUser", updateRequest);
                
         return updateResult;
     }

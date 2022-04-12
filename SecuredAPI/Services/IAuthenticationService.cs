@@ -1,5 +1,5 @@
-﻿using Security.Shared.Models;
-using Security.Shared.Models.Authentication;
+﻿using Security.Core.Models;
+using Security.Core.Models.Authentication;
 
 namespace SecuredAPI.Services;
 

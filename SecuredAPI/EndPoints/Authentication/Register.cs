@@ -1,15 +1,8 @@
 ﻿using Ardalis.ApiEndpoints;
 
-using AutoMapper;
-
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
-using SecuredAPI.Services;
-
-using Security.Shared.Models;
-using Security.Shared.Models.Authentication;
+using Security.Core.Models.Authentication;
 
 namespace SecuredAPI.EndPoints.Authenication;
 [AllowAnonymous]

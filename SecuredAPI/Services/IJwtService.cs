@@ -1,5 +1,5 @@
 ﻿
-using Security.Shared.Models.Authentication;
+using Security.Core.Models.Authentication;
 
 using System.Security.Claims;
 

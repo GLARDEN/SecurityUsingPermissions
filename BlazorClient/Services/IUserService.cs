@@ -1,7 +1,6 @@
-﻿using Security.Shared.Models;
-using Security.Shared.Models.Administration.RoleManagement;
-using Security.Shared.Models.Authentication;
-using Security.Shared.Models.UserManagement;
+﻿using Security.Core.Models;
+using Security.Core.Models.Authentication;
+using Security.Core.Models.UserManagement;
 
 using System.Security.Claims;
 
@@ -17,6 +16,6 @@ public interface IUserService
     Task Logout();
     Task<bool> IsUserAuthenticated();
     Task<List<UserSummaryDto>> ListUsers();
-    Task<EditUserResponse> Save(EditUserRequest updateRequest);
-    Task<EditUserRolesResponse> UpdateUserAccess(Guid userId, List<UserRoleDto> selectedRoles);
+    Task<UpdateUserResponse> Save(UpdateUserRequest updateRequest);
+    Task<UpdateUserResponse> UpdateUserAccess(Guid userId, List<UserRoleDto> selectedRoles);
 }

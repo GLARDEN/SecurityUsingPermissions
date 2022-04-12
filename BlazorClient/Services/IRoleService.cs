@@ -1,6 +1,5 @@
-﻿using Security.Shared.Models.Administration.Role;
-using Security.Shared.Models.Administration.RoleManagement;
-using Security.Shared.Permissions.Helpers;
+﻿using Security.Core.Models.Administration.RoleManagement;
+
 
 namespace BlazorClient.Services;
 

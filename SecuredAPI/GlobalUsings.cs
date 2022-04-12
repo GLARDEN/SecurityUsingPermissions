@@ -2,12 +2,8 @@
 global using System.Reflection;
 global using Microsoft.OpenApi.Models;
 global using SecuredAPI.JwtHelpers;
-global using Security.Data;
 global using SecuredAPI.Services;
 global using SecuredAPI.Services.Profile;
 global using Microsoft.AspNetCore.Authentication.JwtBearer;
 global using Microsoft.IdentityModel.Tokens;
 global using Microsoft.AspNetCore.Authorization;
-global using Security.Shared.Permissions.Constants;
-global using Security.Shared.Permissions.Enums;
-global using Security.Shared.Permissions.Helpers;

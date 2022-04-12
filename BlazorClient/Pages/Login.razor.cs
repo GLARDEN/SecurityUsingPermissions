@@ -3,7 +3,7 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.WebUtilities;
 
-using Security.Shared.Models.Authentication;
+using Security.Core.Models.Authentication;
 
 namespace BlazorClient.Pages;
 

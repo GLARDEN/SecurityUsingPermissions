@@ -1,4 +1,5 @@
-﻿using Security.Shared.Models;
+﻿using Security.Core.Models;
+using Security.Core.Models.WeatherForecast;
 
 namespace BlazorClient.Services;
 

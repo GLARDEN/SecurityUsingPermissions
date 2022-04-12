@@ -1,9 +1,9 @@
 ﻿using AutoMapper;
 
-using Security.Shared.Models;
-using Security.Shared.Models.Administration.RoleManagement;
-using Security.Shared.Models.UserManagement;
-using Security.Shared.Permissions.Extensions;
+using Security.Core.Models.Administration.RoleManagement;
+using Security.Core.Models.UserManagement;
+using Security.Core.Models.WeatherForecast;
+using Security.Core.Permissions.Extensions;
 
 namespace SecuredAPI;
 
@@ -11,7 +11,7 @@ public class AutoMapping :Profile
 {
     public AutoMapping()
     {
-        CreateMap<WeatherForecast, WeatherForecastDto>();
+        CreateMap<Forecast, WeatherForecastDto>();
         CreateMap<User, UserDto>();
         CreateMap<UserRole, UserRoleDto>();
            // .ForMember(dto => dto.Permissions,

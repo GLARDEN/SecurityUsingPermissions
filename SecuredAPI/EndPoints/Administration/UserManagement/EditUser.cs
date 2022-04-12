@@ -1,22 +1,17 @@
 ﻿using Ardalis.ApiEndpoints;
+using Ardalis.Result.AspNetCore;
 
-using AutoMapper;
-
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
-using SecuredAPI.Services;
-
-using Security.Shared.Models;
-using Security.Shared.Models.Administration.Role;
-using Security.Shared.Permissions;
+using Security.Core.Models.UserManagement;
+using Security.Core.Permissions;
+using Security.Core.Permissions.Enums;
 
 namespace SecuredAPI.EndPoints.Administration.RoleManagement;
 
 public class EditUser : EndpointBaseAsync
-                        .WithRequest<EditUserRequest>
-                        .WithActionResult<EditUserResponse>
+                        .WithRequest<UpdateUserRequest>
+                        .WithActionResult<UpdateUserResponse>
 {
     private readonly IUserManagementService _userManagementService;
 
@@ -30,20 +25,17 @@ public class EditUser : EndpointBaseAsync
     /// </summary>
     [HttpPost("api/administration/usermanagement/editUser")]
     [HasPermission(Permission.UserEdit)]
-    public override async Task<ActionResult<EditUserResponse>> HandleAsync([FromBody] EditUserRequest updateUserRequest, CancellationToken cancellationToken = default)
+    public override async Task<ActionResult<UpdateUserResponse>> HandleAsync([FromBody] UpdateUserRequest updateUserRequest, CancellationToken cancellationToken = default)
     {
-        if (updateUserRequest == null || !ModelState.IsValid)
-        {
-            return new EditUserResponse() { Success = false, ErrorMessage = "Update User Request is null." };
-        }
+        //if (updateUserRequest == null || !ModelState.IsValid)
+        //{
+        //    return new UpdateUserResponse() { Success = false, ErrorMessage = "Update User Request is null." };
+        //}
 
-        EditUserResponse updateUserResponse = await _userManagementService.UpdateUser(updateUserRequest);
+        UpdateUserResponse response = await _userManagementService.UpdateUserAsync(updateUserRequest);
+                
+        return this.ToActionResult<UpdateUserResponse>(response);
 
-        if (!updateUserResponse.Success)
-        {
-            return BadRequest(updateUserResponse);
-        }
 
-        return updateUserResponse;
     }
 }

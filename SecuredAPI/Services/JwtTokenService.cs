@@ -1,4 +1,6 @@
-﻿using Security.Shared.Models.Authentication;
+﻿
+using Security.Core.Models.Authentication;
+using Security.Core.Permissions.Constants;
 
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;

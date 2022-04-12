@@ -3,9 +3,9 @@ using BlazorClient.Services;
 
 using Microsoft.AspNetCore.Components;
 
-using Security.Shared.Models.Administration.RoleManagement;
-using Security.Shared.Permissions.Enums;
-using Security.Shared.Permissions.Helpers;
+using Security.Core.Models.Administration.RoleManagement;
+using Security.Core.Permissions.Enums;
+using Security.Core.Permissions.Helpers;
 
 using System.Security.Claims;
 

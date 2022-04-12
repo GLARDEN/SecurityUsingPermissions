@@ -1,11 +1,7 @@
 ﻿using BlazorClient.Providers;
 
-using Security.Shared.Models;
-using Security.Shared.Models.Administration.Role;
-using Security.Shared.Models.Administration.RoleManagement;
-using Security.Shared.Models.Authentication;
-using Security.Shared.Models.UserManagement;
-using Security.Shared.Permissions.Helpers;
+using Security.Core.Models.Administration.RoleManagement;
+
 
 namespace BlazorClient.Services;
 

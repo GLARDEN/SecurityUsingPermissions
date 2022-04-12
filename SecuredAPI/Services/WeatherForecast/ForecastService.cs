@@ -2,11 +2,8 @@
 
 using AutoMapper;
 
-using Microsoft.EntityFrameworkCore;
-
-using Security.Data;
-using Security.Shared.Models;
-using Security.Shared.Models.UserManagement;
+using Security.Core.Models.WeatherForecast;
+using Security.Infrastructure;
 
 namespace SecuredAPI.Services;
 
@@ -24,7 +21,7 @@ public class ForecastService : IForecastService
     public async Task<Result<CreateForecastResponse>> CreateForecast(CreateForecastRequest request)
     {
 
-        WeatherForecast newWeatherForecast = new(request.Summary, request.Date, request.TemperatureC);
+       Forecast newWeatherForecast = new(request.Summary, request.Date, request.TemperatureC);
 
         _appDbContext.WeatherForecasts.Add(newWeatherForecast);        
 
@@ -103,7 +100,7 @@ public class ForecastService : IForecastService
         UpdateForecastResponse response = new() { Success=false };
         try
         {
-            WeatherForecast? forecast = await _appDbContext.WeatherForecasts.FindAsync(request.Forecast.Id);
+            Forecast? forecast = await _appDbContext.WeatherForecasts.FindAsync(request.Forecast.Id);
 
             if (forecast != null)
             {

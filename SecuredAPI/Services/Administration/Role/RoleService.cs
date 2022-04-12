@@ -1,9 +1,10 @@
 ﻿using AutoMapper;
-using Security.Shared.Models.Administration.Role;
-using Security.Shared.Models.Administration.RoleManagement;
-using Security.Shared.Permissions.Extensions;
 using Ardalis.Result;
 using Ardalis.GuardClauses;
+using Security.Infrastructure;
+using Security.Core.Permissions.Enums;
+using Security.Core.Models.Administration.RoleManagement;
+using Security.Core.Permissions.Extensions;
 
 namespace SecuredAPI.Services;
 
@@ -111,7 +112,7 @@ public class RoleService : IRoleService
             }
             else
             {
-                role.RenameRole(request.Name);
+                await role.RenameRoleAsync(request.Name);
                 role.ChangeRoleDescription(request.Description);
                 role.UpdatePermissions(request.PermissionNames);
 

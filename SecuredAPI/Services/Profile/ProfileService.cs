@@ -1,5 +1,4 @@
-﻿using Security.Data;
-using Security.Shared.Models;
+﻿using Security.Infrastructure;
 
 namespace SecuredAPI.Services.Profile;
 

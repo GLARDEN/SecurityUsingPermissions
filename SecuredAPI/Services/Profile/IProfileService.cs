@@ -1,6 +1,4 @@
-﻿using Security.Shared.Models;
-
-namespace SecuredAPI.Services.Profile;
+﻿namespace SecuredAPI.Services.Profile;
 
 public interface IProfileService
 {

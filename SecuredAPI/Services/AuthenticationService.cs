@@ -1,11 +1,10 @@
 ﻿using AutoMapper;
 
-using Security.Shared.Models;
-using Security.Shared.Models.Authentication;
-using Security.Shared.Models.UserManagement;
-using Security.Shared.Permissions.Extensions;
+using Security.Core.Models;
+using Security.Core.Models.Authentication;
+using Security.Core.Models.UserManagement;
+using Security.Infrastructure;
 
-using System.Linq;
 using System.Security.Claims;
 using System.Security.Cryptography;
 

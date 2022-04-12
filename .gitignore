@@ -13,3 +13,6 @@
 /BlazorClient/obj
 /.vs/SecurityUsingPermissions
 *.json
+/Security.Data/obj
+/Security.SharedKernel/bin/Debug/net6.0
+/Security.SharedKernel/obj
