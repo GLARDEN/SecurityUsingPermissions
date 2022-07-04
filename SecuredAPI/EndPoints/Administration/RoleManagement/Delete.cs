@@ -4,6 +4,7 @@ using Ardalis.Result.AspNetCore;
 using Microsoft.AspNetCore.Mvc;
 
 using Security.Core.Models.Administration.RoleManagement;
+using Security.Core.Models.Administration.RoleManagement.Services;
 using Security.Core.Permissions;
 using Security.Core.Permissions.Enums;
 

@@ -10,8 +10,8 @@ namespace BlazorClient.Shared
     public partial class NavMenu
     {
        
-        [Inject]
-        public AuthenticationStateProvider AuthenticationStateProvider { get; set; }
+        [CascadingParameter]
+        public Task<AuthenticationState> AuthenticationState { get; set; }
 
         private bool collapseNavMenu = true;
         private ClaimsPrincipal _currentUser;
@@ -27,7 +27,8 @@ namespace BlazorClient.Shared
 
         protected override async Task OnInitializedAsync()
         {
-            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            var authState = await AuthenticationState;
+
             var _currentUser = authState.User;
 
             await base.OnInitializedAsync();

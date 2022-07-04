@@ -2,7 +2,7 @@
 
 public class UpdateForecastResponse
 {
-    public WeatherForecastDto Forecast { get; set; } = null!;
-    public bool Success { get; set; }
+    //This return object would be fore fields that get calculated values from the domain
+    //that are a result of some domain specific logic.
 }
 

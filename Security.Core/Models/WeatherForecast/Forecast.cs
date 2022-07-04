@@ -1,6 +1,8 @@
-﻿namespace Security.Core.Models.WeatherForecast;
+﻿using Security.SharedKernel.Interfaces;
 
-public class Forecast
+namespace Security.Core.Models.WeatherForecast;
+
+public class Forecast : IAggregateRoot
 {
     public int Id { get; set; }
     public string? Summary { get; set; }

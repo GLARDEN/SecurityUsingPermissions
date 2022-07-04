@@ -2,6 +2,7 @@
 
 public class CreateRoleResponse
 {
-    public RoleDto Role { get; set; }
+    public Guid RoleId { get; set; }
+    public string message { get; set; }
 }
 

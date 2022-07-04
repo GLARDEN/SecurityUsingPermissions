@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Security.Core.Models.WeatherForecast;
 using Security.Core.Permissions;
 using Security.Core.Permissions.Enums;
+using Security.Core.Services.WeatherForecast;
 
 namespace SecuredAPI.EndPoints.WeatherForecasts;
 

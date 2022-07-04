@@ -7,6 +7,7 @@ using Ardalis.Result.AspNetCore;
 using Security.Core.Models.WeatherForecast;
 using Security.Core.Permissions;
 using Security.Core.Permissions.Enums;
+using Security.Core.Services.WeatherForecast;
 
 namespace SecuredAPI.EndPoints.WeatherForecasts;
 
@@ -30,9 +31,7 @@ public class List : EndpointBaseAsync
     public override async Task<ActionResult<ListForecastsResponse>> HandleAsync( CancellationToken cancellationToken = default)
     {
         ListForecastsResponse response = await _forecastService.ListForecasts();
-
-        return this.ToActionResult<ListForecastsResponse>(response);
-
-        
+        return this.ToActionResult<ListForecastsResponse>(response);        
     }
+
 }

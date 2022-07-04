@@ -2,8 +2,8 @@
 
 public class AppStateProvider<t> : IAppStateProvider<t>
 {
-    private t _state;
-    public t State
+    private t? _state;
+    public t? State
     {
         get => _state;
         set

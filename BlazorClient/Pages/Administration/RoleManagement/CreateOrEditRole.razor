@@ -3,27 +3,30 @@
 
 <div class="mt-1"><h4 >@PageTitle</h4></div>
 
-<EditForm Model="_role" OnValidSubmit="SaveRole">    
+@*<EditForm Model="_role">    *@
     <div class="form-group row">
         <label for="name" class="col-md-1 col-form-label col-form-label-sm">Name:</label>
         <div class="col-md-10">
-            <InputText id="roleName" class="form-control form-control-sm" @bind-Value="_role.Name" />
+            @*<InputText id="roleName" class="form-control form-control-sm" @bind-Value="_role.Name" />*@
+            <input type="text" id="roleName" class="form-control form-control-sm" @bind=@_role.Name />
         </div>
     </div>
     <div class="form-group row mt-1">
         <label for="description" class="col-md-1 col-form-label  col-form-label-sm">Description:</label>
         <div class="col-md-10">
-            <InputText id="description" class="form-control form-control-sm" @bind-Value="_role.Description" />
+            @*<InputText id="description" class="form-control form-control-sm" @bind-Value="_role.Description" />*@
+            <input type="text" id="description" class="form-control form-control-sm" @bind=@_role.Description />
 
         </div>
     </div>
     <div class="row ms-5 mt-2">
         <table class="table-sm w-75">
             <thead>
+                <tr></tr>
+            </thead>
+            <thead>
                 <tr>
-                    <th>
-                        Permission Group
-                    </th>
+                   
                     <th>
                         Name
                     </th>
@@ -36,7 +39,7 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach (var permissionGroup in _groupedPermissions)
+            @foreach (var permissionGroup in _groupedPermissions)
                 {
                     var isFirstRowInGroup = true;
                     @foreach (var permission in permissionGroup.Permissions)
@@ -47,7 +50,10 @@
                             </td>
                             <td>@permission.ShortName</td>
                             <td>@permission.Description</td>
-                            <td class="text-center"><InputCheckbox class="form-check-input" checked="@permission.IsSelected" @bind-Value="permission.IsSelected" /></td>                         
+                            <td class="text-center">
+                              <input type="checkbox" class="form-check-input" checked="@permission.IsSelected" @bind-value="permission.IsSelected" />
+                            @*    <InputCheckbox class="form-check-input" checked="@permission.IsSelected" @bind-Value="permission.IsSelected" />*@
+                            </td>                         
                         </tr>                  
                         isFirstRowInGroup = false;
                     }
@@ -58,7 +64,17 @@
     </div>
     <div class="row">
         <div class="col-md-12 text-right">
-            <button id="save" type="submit" class="btn btn-success">Save</button>
+            <button id="save" class="btn btn-success"  @onclick="(() => SaveRole())">Save</button> 
+            @if(_messages != null && _messages.Count() > 0)
+            {
+                foreach(string message in _messages)
+                {
+                    <ul>
+                        <li>@message</li>
+                    </ul>
+                }
+            }
+            
         </div>
     </div>
-</EditForm>
+@*</EditForm>*@

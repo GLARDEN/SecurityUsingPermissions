@@ -4,6 +4,7 @@ using Ardalis.Result.AspNetCore;
 using Microsoft.AspNetCore.Mvc;
 
 using Security.Core.Models.Administration.RoleManagement;
+using Security.Core.Models.Administration.RoleManagement.Services;
 using Security.Core.Permissions;
 using Security.Core.Permissions.Enums;
 
@@ -25,11 +26,12 @@ public class Update : EndpointBaseAsync
     /// </summary>
     [HttpPost(UpdateRoleRequest.Route)]
     [HasPermission(Permission.RoleEdit)]
-    public override async Task<ActionResult<UpdateRoleResponse>> HandleAsync([FromBody] UpdateRoleRequest editRoleRequest, CancellationToken cancellationToken = default)
+    public override async Task<ActionResult<UpdateRoleResponse>> HandleAsync([FromBody] UpdateRoleRequest updateRoleRequest, CancellationToken cancellationToken = default)
     {
-        
-      UpdateRoleResponse response = await _roleService.UpdateAsync(editRoleRequest);
-      return this.ToActionResult<UpdateRoleResponse>(response);
+        return (await _roleService.UpdateAsync(updateRoleRequest)).ToActionResult(this);        
         
     }
 }
+
+
+

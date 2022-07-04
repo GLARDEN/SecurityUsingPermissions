@@ -1,70 +1,194 @@
-﻿using BlazorClient.Services;
+﻿using BlazorClient.Interfaces;
+using BlazorClient.Providers;
+using BlazorClient.Services;
+
 using Microsoft.AspNetCore.Components;
 
 using Security.Core.Models;
+using Security.Core.Models.Administration.RoleManagement;
+using Security.Core.Models.Authentication;
 using Security.Core.Models.UserManagement;
-using Security.Core.Permissions.Services;
+
+using System.Net;
 
 namespace BlazorClient.Pages.Administration.UserManagement;
-public partial class CreateOrEditUser
+public partial class CreateOrEditUser : IDisposable
 {
     [Inject]
-    public IPermissionDisplayService PermissionDisplayService { get; set; } = null!;
+    public NavigationManager NavigationManager { get; set; } = null!;
+
+   // [Inject]
+   // public IHttpInterceptorService Interceptor { get; set; }
 
     [Inject]
-    public IUserService UserService { get; set; } = null!;
+    public IRoleUiService RoleUiService { get; set; } = null!;
 
-    [Parameter]
-    public UpdateUserRequest SelectedUser { get; set; }    
+    [Inject]
+    public IRefreshTokenUiService RefreshTokenUiService { get; set; } = null!;
 
-    [Parameter]
-    public EventCallback<UpdateUserRequest> SelectedUserChanged { get; set; } 
+    [Inject]
+    public IUserManagementUiService UserManagementUiService { get; set; } = null!;
 
-    [Parameter]
-    public bool IsVisible { get; set; }
+    [Inject]
+    public IAuthenticationUiService AuthenticationUiService { get; set; } = null!;
 
-    [Parameter]
-    public EventCallback<bool> IsVisibleChanged { get; set; }
+    [Inject]
+    protected IAppStateProvider<UserDto> StateProvider { get; set; } = null!;
 
-   // private List<RoleDisplayDto> _rolesDisplay;
 
+    private List<RoleDto> _roleList = new();
+
+    private UserDto _selectedUser = new();
+
+    private List<string> _messages = new();
+
+
+    protected override void OnInitialized()
+    {
+        //Interceptor.RegisterEvent();
+        if (StateProvider.State != null)
+        {
+            _selectedUser = StateProvider.State;
+        }
+    }
     protected override async Task OnInitializedAsync()
     {
-     //   _rolesDisplay = PermissionDisplayService.GetRolesForDisplay();
+        ApiResponse<ListRolesResponse> apiResponse = await RoleUiService.ListRoles();
+        if (apiResponse.StatusCode == HttpStatusCode.OK)
+        {
+            _roleList = apiResponse?.Data?.Roles?.ToList() ?? new List<RoleDto>();
+        }
+    }
 
-        //SelectedUser.RoleNames.ForEach(ur =>
-        //{
-            //var permissionNames = ur.Permissions.ConvertPackedPermissionToNames();
-
-            //_rolesDisplay.ForEach(role => {
-                
-            //    role.Permissions.ForEach(p => {
-            //        p.IsSelected = permissionNames.Contains(p.PermissionName);
-            //    });
-            //    role.IsSelected = role.Permissions.Any(p => p.IsSelected);
-            //});
-        //});
-        
+    protected string GetValidStatusIcon(RefreshTokenDto refreshToken)
+    {
+        if (refreshToken.IsInvalid)
+        {
+            return "fa-solid fa-x fa-2xl center text-danger";
+        }
+        else
+        {
+            return "fa-solid fa-check fa-2xl center text-success";
+        }
     }
 
     protected void CheckboxClicked(string roleName, PermissionInfoDto selectedPermission, Object checkedValue)
-    {  
-       
-        selectedPermission.IsSelected = (bool)checkedValue;
-        
+    {
         //bool roleSelected = _rolesDisplay.Any(r => r.RoleName == roleName &&  r.Permissions.Any(p => p.IsSelected));        
         //_rolesDisplay.FirstOrDefault(r => r.RoleName == roleName).IsSelected = roleSelected;
 
     }
 
+    protected void GrantRole(RoleDto role)
+    {
+        UserRoleDto userRole = new() { UserId = _selectedUser.Id, RoleName = role.Name, AssignedPermissions = role.PermissionsInRole, IsDeleted = false };
+        _selectedUser.AssignedRoles.Add(userRole);
+    }
+
+    protected void RevokeRole(RoleDto role)
+    {
+        var userRoleToRemove = _selectedUser.AssignedRoles.FirstOrDefault(r => r.RoleName == role.Name);
+
+        if (userRoleToRemove != null)
+        {
+            userRoleToRemove.IsDeleted = true;
+        }
+
+    }
+
+    protected async Task RevokeRefreshToken(RefreshTokenDto refreshTokenDto)
+    {   
+        RevokeRefreshTokenRequest revokeRefreshTokenRequest = new()
+        {
+            UserId = _selectedUser.Id,
+            DeviceId = (await AuthenticationUiService.GetUserDeviceIdAsync()).DeviceId
+        };
+
+        ApiResponse<RevokeRefreshTokenResponse> apiResponse = await RefreshTokenUiService.RevokeRefreshToken(revokeRefreshTokenRequest);
+        
+        if (apiResponse.StatusCode == HttpStatusCode.OK)
+        {
+            refreshTokenDto.IsInvalid = true;
+            StateHasChanged();
+        }
+        else
+        {
+            _messages = apiResponse.ResponseMessages ?? new List<string>();
+        }
+    }
+
+    protected async Task RevokeAllTokens()
+    {
+        RevokeRefreshTokenRequest revokeRefreshTokenRequest = new()
+        {
+            UserId = _selectedUser.Id,
+            RevokeAll = true
+        };
+
+        ApiResponse<RevokeRefreshTokenResponse> apiResponse = await RefreshTokenUiService.RevokeRefreshTokens(revokeRefreshTokenRequest);
+
+        if (apiResponse.StatusCode == HttpStatusCode.OK)
+        {
+            _selectedUser.RefreshTokens.ForEach(t => t.IsInvalid = true);
+            StateHasChanged();
+        }
+        else
+        {
+            _messages = apiResponse.ResponseMessages ?? new List<string>();
+        }
+    }
+
+    
     protected async Task SaveAsync()
     {
-        //var selectedRoles = _rolesDisplay.Where(r => r.Permissions.Any(p => p.IsSelected)).ToList();
+        try
+        {
+            if (_selectedUser.Id.Equals(Guid.Empty))
+            {
+                CreateUserRequest createRoleRequest = new()
+                {
+                    Email = _selectedUser.Email,
+                    AssignedRoles = _selectedUser.AssignedRoles
+                };
 
-        //var result = await UserService.UpdateUserAccess(SelectedUser.Id, selectedRoles);
-        await SelectedUserChanged.InvokeAsync(SelectedUser);
-        IsVisible = !IsVisible;
-        await IsVisibleChanged.InvokeAsync(IsVisible);
+                var apiResponse = await UserManagementUiService.CreateAsync(createRoleRequest);
+
+                if (apiResponse.StatusCode != HttpStatusCode.BadRequest)
+                {
+                    NavigationManager.NavigateTo("/UserManagement/Users", false);
+                }
+                else
+                {
+                    _messages = apiResponse.ResponseMessages ?? new List<string>();
+                }
+            }
+            else
+            {
+                UpdateUserRequest updateUserRequest = new();
+                updateUserRequest.Id = _selectedUser.Id;
+                updateUserRequest.Email = _selectedUser.Email;
+                updateUserRequest.Roles = _selectedUser.AssignedRoles;
+
+                ApiResponse<UpdateUserResponse> apiResponse = await UserManagementUiService.UpdateAsnyc(updateUserRequest);
+
+                if (apiResponse.StatusCode != HttpStatusCode.OK)
+                {
+                    _messages = apiResponse.ResponseMessages ?? new List<string>();
+                }
+
+                NavigationManager.NavigateTo("/UserManagement/Users");
+            }
+        }
+        catch (Exception ex)
+        {
+            //Add Logging
+            _messages.Add(ex?.InnerException?.Message ?? "");
+        }
+    }
+
+    public void Dispose()
+    {   
+      //  Interceptor.DisposeEvent();
     }
 }
 

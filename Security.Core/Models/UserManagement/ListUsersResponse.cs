@@ -2,7 +2,7 @@
 
 public class ListUsersResponse
 {
-    public List<UserSummaryDto> RegisteredUsers { get; set; }
+    public List<UserDto> RegisteredUsers { get; set; }
 
     public bool Success { get; set; }
 

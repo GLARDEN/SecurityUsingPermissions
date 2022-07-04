@@ -5,42 +5,33 @@ using AutoMapper;
 
 using Microsoft.AspNetCore.Mvc;
 
+using Ardalis.Result.AspNetCore;
+
 using Security.Core.Models.Authentication;
+using Security.Core.Services;
+using Ardalis.Result;
+using Security.Core.Models.Administration.RoleManagement;
 
 namespace SecuredAPI.EndPoints.Authenication;
 
 public class Login : EndpointBaseAsync
-    .WithRequest<LoginRequestDto>
-    .WithActionResult<LoginResponseDto>
+                            .WithRequest<LoginRequest>
+                            .WithActionResult<LoginResponse>
 {
-    private readonly IAuthenticationService _authenticationService;
-    private readonly IMapper _mapper;
-    private readonly IConfiguration _configuration;
-    private readonly IJwtTokenService _jwtService;
+    private readonly IAuthenticationService _authenticatiService;     
 
-    public Login(IAuthenticationService authenticationService, IMapper mapper, IConfiguration configuration, IJwtTokenService jwtService)
+    public Login(IAuthenticationService authenticationService)
     {
-        _authenticationService = authenticationService;
-        _mapper = mapper;
-        _configuration = configuration;
-        _jwtService = jwtService;
+        _authenticatiService = authenticationService;
     }
 
     /// <summary>
     /// Authenticates and logs user in
     /// </summary>
-    [HttpPost(LoginRequestDto.Route)]
+    [HttpPost(LoginRequest.Route)]
     [AllowAnonymous]
-    public override async Task<ActionResult<LoginResponseDto>> HandleAsync([FromBody] LoginRequestDto loginRequest, CancellationToken cancellationToken = default)
+    public override async Task<ActionResult<LoginResponse>> HandleAsync([FromBody] LoginRequest loginRequest, CancellationToken cancellationToken = default)
     {
-        LoginResponseDto loginResponse = await _authenticationService.LoginAsync(loginRequest);            
-        if (loginResponse.IsAuthenticationSuccessful)
-        {   
-            return loginResponse;
-        }
-        else
-        {
-            return Unauthorized(new LoginResponseDto { ErrorMessage = "Log attempt failed" });
-        }
+         return (await _authenticatiService.LoginAsync(loginRequest)).ToActionResult(this);        
     }
 }

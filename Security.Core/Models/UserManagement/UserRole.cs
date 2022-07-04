@@ -12,7 +12,7 @@ public class UserRole
         UserId = userId;
         RoleName = roleName;
         AssignedPermissions = assignedPermissions;
-    }//Required by EF Core
+    }
 
 
 

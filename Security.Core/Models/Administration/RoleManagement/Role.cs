@@ -4,7 +4,8 @@ using Security.Core.Models.Administration.RoleManagement.Events;
 using Security.Core.Permissions.Extensions;
 
 using Security.SharedKernel.Interfaces;
-using Security.Core.Events;
+using Security.SharedKernel;
+using Security.Core.Models.UserManagement.Events;
 
 namespace Security.Core.Models.Administration.RoleManagement;
 
@@ -12,62 +13,60 @@ public class Role : IAggregateRoot
 {
     public Guid Id { get; private set; }
     public string Name { get; private set; } = null!;
-    public string Description { get; private set; } = null!;
+    public string? Description { get; private set; }
 
     public string PermissionsInRole { get; private set; }
     public bool Enabled { get; private set; }
 
     private Role() { } //required by EF Core
 
-    public Role(string roleName, string description, bool enabled, string permissions)
+    private Role(string roleName, string description, bool enabled, string permissions)
     {
-        Guard.Against.NullOrEmpty(permissions, nameof(permissions), "A role should have atleaast 1 permisssion assigned");
-        Name = roleName;
+        Name = Guard.Against.NullOrEmpty(roleName, nameof(roleName));
         Description = description;
-        Enabled = enabled;
-        PermissionsInRole = permissions;
+        Enabled = Guard.Against.Null(enabled, nameof(enabled));
+        PermissionsInRole = Guard.Against.NullOrEmpty(permissions, nameof(permissions));
     }
-
-    public static Role Create(string roleName, string description, bool enabled, string permissions)
+    public static Role Create(string roleName, string? description, bool enabled, string permissions)
     {
-        Guard.Against.NullOrEmpty(roleName, nameof(roleName), "Role name is required.");
+        Guard.Against.NullOrEmpty(roleName, nameof(roleName), "Role must have a name.");
+        Guard.Against.NullOrEmpty(permissions, nameof(permissions), "A role should have atleaast 1 permisssion assigned");
 
-
-
-        Role newRole = new Role(roleName, description, enabled, permissions);
+        Role newRole = new();
+        newRole.RenameRole(roleName);
+        newRole.ChangeRoleDescription(description);
+        newRole.UpdatePermissions(permissions);
+        newRole.UpdateEnabled(enabled);
         return newRole;
-
     }
-
     public void ChangeRoleDescription(string? description)
     {
-        if (!Description.Equals(description))
+        if (Description == null || !Description.Equals(description))
         {
-            Description = description;
+            Description = description ?? "";
         }
-
     }
 
-    public async Task RenameRoleAsync(string roleName)
+    public void RenameRole(string roleName)
     {
         Guard.Against.Null(roleName, nameof(roleName), "Role name requred.");
+        DomainEvents.Raise(new UpdatingRoleNameEvent(this.Id, roleName)).Wait();
 
-        await DomainEvents.Raise(new UpdatingRoleNameEvent(Id, roleName));
-
-        if (!Name.Equals(roleName))
+        if (Name == null || !Name.Equals(roleName))
         {
             Name = roleName;
         }
     }
 
-    public void UpdatePermissions(IEnumerable<string> permissions)
+    public void UpdatePermissions(string permissions)
     {
-        Guard.Against.Null(permissions, nameof(permissions), "A role should have atleaast 1 permisssion assigned");
-        PermissionsInRole = permissions.PackPermissionsNames();
+        Guard.Against.NullOrEmpty(permissions, nameof(permissions), "A role should have atleaast 1 permisssion assigned");
+        DomainEvents.Raise(new CheckForInvalidPermissionEvent(permissions)).Wait();
+        PermissionsInRole = permissions;
     }
 
-    public void ToggleRoleEnabled()
+    public void UpdateEnabled(bool enabled)
     {
-        Enabled = !Enabled;
+        Enabled = enabled;
     }
 }

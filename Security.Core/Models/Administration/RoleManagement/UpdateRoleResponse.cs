@@ -3,12 +3,6 @@ namespace Security.Core.Models.Administration.RoleManagement;
 
 public class UpdateRoleResponse
 {
-
-    public RoleDto Role { get; set; } = new RoleDto();
-
-    public UpdateRoleResponse()
-    {
-
-    }
+    //Return fields that are updated do some processing by the domain
 }
 

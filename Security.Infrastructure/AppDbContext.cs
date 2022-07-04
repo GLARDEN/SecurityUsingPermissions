@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
 using Security.Core.Models.Administration.RoleManagement;
+using Security.Core.Models.Authentication;
 using Security.Core.Models.UserManagement;
 using Security.Core.Models.WeatherForecast;
 
@@ -11,6 +12,7 @@ public class AppDbContext : DbContext
 {
     public DbSet<User> Users { get; set; } = null!;
     public DbSet<UserRole> UserRoles { get; set; } = null!;
+    public DbSet<RefreshToken> RefreshTokens { get; set; } = null!;
     public DbSet<Role> Roles { get; set; } = null!;
     public DbSet<Forecast> WeatherForecasts { get; set; } = null!;
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
@@ -22,6 +24,10 @@ public class AppDbContext : DbContext
             .IsUnique();
 
         builder.Entity<User>().HasKey(k => k.Id);
+
+        builder.Entity<RefreshToken>().HasKey(k => new {k.UserId, k.DeviceId });      
+        builder.Entity<RefreshToken>().HasIndex(i => new { i.UserId, i.DeviceId, i.IsInvalid}).IsUnique();
+        builder.Entity<RefreshToken>().HasQueryFilter(rt => !rt.IsInvalid);
 
         builder.Entity<UserRole>().HasKey(x => new { x.UserId, x.RoleName });
 

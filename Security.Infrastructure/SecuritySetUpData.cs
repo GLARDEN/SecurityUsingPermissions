@@ -17,13 +17,13 @@ public class SecuritySetUpData
 {
     public static readonly List<Role> DefaultRoleDefinitions = new List<Role>()
     {
-        new("SuperAdmin", "Super admin - only use for setup",true, new List<string>(){Permission.AccessAll.ToString() }.PackPermissionsNames()),
-        new("Forecast Manager", "Overall Forecast Permissions",true,
+        Role.Create("SuperAdmin", "Super admin - only use for setup",true, new List<string>(){Permission.AccessAll.ToString() }.PackPermissionsNames()),
+        Role.Create("Forecast Manager", "Overall Forecast Permissions",true,
             new List<string>(){Permission.ForecastCreate.ToString(),Permission.ForecastUpdate.ToString(),Permission.ForecastDelete.ToString(),Permission.ForecastView.ToString() }.PackPermissionsNames()),
-        new("User Manager", "User Manager can add , update or remove any user", true,
-            new List<string>(){Permission.UserAdd.ToString(),Permission.UserEdit.ToString(),Permission.UserDelete.ToString(),Permission.UserView.ToString() }.PackPermissionsNames()),
-        new("Role Management", "Role Manager can add , update or remove roles", true,
-            new List<string>(){Permission.RoleCreate.ToString(),Permission.RoleEdit.ToString(),Permission.RoleDelete.ToString(),Permission.RoleView.ToString() }.PackPermissionsNames()),
+        Role.Create("User Administrator", "User Administrator can add , update or remove users and roles", true,
+            new List<string>(){Permission.RoleCreate.ToString(),Permission.RoleEdit.ToString(),Permission.RoleDelete.ToString(),Permission.RoleView.ToString(),
+                               Permission.UserRoleCreate.ToString(),Permission.UserRoleEdit.ToString(),Permission.UserRoleDelete.ToString(),Permission.UserRoleView.ToString(),
+                               Permission.UserView.ToString(),Permission.UserAdd.ToString(),Permission.UserEdit.ToString(),Permission.UserDelete.ToString() }.PackPermissionsNames())
 
     };
 
@@ -63,18 +63,12 @@ public class SecuritySetUpData
         //Test User Account Administrator Account
         CreatePasswordHash("useradmin", out byte[] passwordHash1, out byte[] passwordSalt1);
         User userAdmin = new(Guid.NewGuid(), "um@test.com", passwordHash1, passwordSalt1);
-        var userManagementPermissions = DefaultRoleDefinitions.FirstOrDefault(r => r.Name == "User Manager")?.PermissionsInRole;
-        userAdmin.AssignRole("User Management", userManagementPermissions);
+        var userAdministratorPermissions = DefaultRoleDefinitions.FirstOrDefault(r => r.Name == "User Administrator")?.PermissionsInRole;
+        userAdmin.AssignRole("User Administrator", userAdministratorPermissions ?? String.Empty);
 
-        //Test Role Administrator Account        
-        CreatePasswordHash("roleadmin", out byte[] ph, out byte[] ps);
-        User roleAdmin = new(Guid.NewGuid(), "roleAdmin@test.com", ph, ps);
-        var roleManagementPermissions = DefaultRoleDefinitions.FirstOrDefault(p => p.Name == "Role Management")?.PermissionsInRole;
-        roleAdmin.AssignRole("Role Management", roleManagementPermissions);
 
         defaultUsers.Add(forecastUser);
-        defaultUsers.Add(userAdmin);
-        defaultUsers.Add(roleAdmin);
+        defaultUsers.Add(userAdmin);        
 
         return defaultUsers;
     }

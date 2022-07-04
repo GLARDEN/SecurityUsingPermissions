@@ -4,6 +4,7 @@ using Ardalis.Result.AspNetCore;
 using Microsoft.AspNetCore.Mvc;
 
 using Security.Core.Models.Administration.RoleManagement;
+using Security.Core.Models.Administration.RoleManagement.Services;
 
 namespace SecuredAPI.EndPoints.Administration.RoleManagement;
 
@@ -24,8 +25,6 @@ public class List : EndpointBaseAsync
     [HttpGet(ListRolesRequest.Route)]
     public override async Task<ActionResult<ListRolesResponse>> HandleAsync(CancellationToken cancellationToken = default)
     {
-        ListRolesResponse response = await _roleService.ListAsync();
-
-        return this.ToActionResult<ListRolesResponse>(response);
+        return this.ToActionResult<ListRolesResponse>(await _roleService.ListAsync());
     }
 }

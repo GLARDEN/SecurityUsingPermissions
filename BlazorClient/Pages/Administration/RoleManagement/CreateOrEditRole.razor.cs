@@ -1,5 +1,7 @@
+using Ardalis.Result;
+
+using BlazorClient.Interfaces;
 using BlazorClient.Providers;
-using BlazorClient.Services;
 
 using Microsoft.AspNetCore.Components;
 
@@ -8,22 +10,26 @@ using Security.Core.Models.Administration.RoleManagement;
 using Security.Core.Permissions.Services;
 
 using System.Data;
+using System.Net;
 
 namespace BlazorClient.Pages.Administration.RoleManagement;
 
-public partial class CreateOrEditRole
+public partial class CreateOrEditRole : IDisposable
 {
     [Inject]
     public NavigationManager NavigationManager { get; set; } = null!;
+
+  //  [Inject]
+  //  public IHttpInterceptorService Interceptor { get; set; }
 
     [Inject]
     protected IAppStateProvider<RoleDto> StateProvider { get; set; } = null!;
 
     [Inject]
-    public IPermissionDisplayService PermissionDisplayService { get; set; } = null!;
+    public IPermissionService PermissionDisplayService { get; set; } = null!;
 
     [Inject]
-    public IRoleService RoleService { get; set; }
+    public IRoleUiService RoleUiService { get; set; }
 
     private string PageTitle = "";
 
@@ -35,11 +41,14 @@ public partial class CreateOrEditRole
 
     private string currentGroupName = string.Empty;
 
-    
+    private List<string>? _messages = new();
+
     public CreateOrEditRole() { }
 
     protected override void OnInitialized()
     {
+      //  Interceptor.RegisterEvent();
+
         _groupedPermissions = PermissionDisplayService.GroupPermissionsForDisplay();
 
         if (StateProvider.State != null)
@@ -55,41 +64,61 @@ public partial class CreateOrEditRole
         {
             _groupedPermissions.ForEach(gp =>
             {
-                gp.Permissions.ForEach(p => 
+                gp.Permissions.ForEach(p =>
                 {
                     p.IsSelected = _role.PermissionsInRole.Contains(p.PermissionName);
                 });
             });
 
-        PageTitle = $"Edit {_role.Name} Role";
+            PageTitle = $"Edit {_role.Name} Role";
         }
 
     }
 
     private async Task SaveRole()
     {
-        var _selectedPermissions = GetSelectedPermissions();
-
-        if (_role.Id.Equals(Guid.Empty))
+        try
         {
-            CreateRoleRequest createRoleRequest = new()
+            var _selectedPermissions = GetSelectedPermissions();
+            if (_role.Id.Equals(Guid.Empty))
             {
-                Name = _role.Name,
-                Description = _role.Description,
-                Permissions = _selectedPermissions
-            };
+                CreateRoleRequest createRoleRequest = new()
+                {
+                    Name = _role.Name,
+                    Description = _role.Description,
+                    Permissions = _selectedPermissions
+                };
 
-            await RoleService.CreateAsync(createRoleRequest);
+                var apiResponse = await RoleUiService.CreateAsync(createRoleRequest);
+
+                if (apiResponse.StatusCode != HttpStatusCode.BadRequest)
+                {
+                    NavigationManager.NavigateTo("/RoleManagement/Roles", false);
+                }
+                else
+                {
+                    _messages = apiResponse.ResponseMessages;
+                }
+            }
+            else
+            {
+                _role.PermissionsInRole = _selectedPermissions;
+                UpdateRoleRequest request = UpdateRoleRequest.FromDto(_role);
+                ApiResponse<UpdateRoleResponse> apiResponse = await RoleUiService.UpdateAsync(request);
+
+                if (apiResponse.StatusCode != HttpStatusCode.OK)
+                {
+                    _messages = apiResponse.ResponseMessages;
+                }
+
+                NavigationManager.NavigateTo("/RoleManagement/Roles");
+            }
         }
-        else
+        catch (Exception ex)
         {
-            _role.PermissionsInRole = _selectedPermissions;
-
-            UpdateRoleRequest request = UpdateRoleRequest.FromDto(_role);
-            await RoleService.UpdateAsync(request);
+            var result = ex.InnerException.Message;
         }
 
-        NavigationManager.NavigateTo("/RoleManagement/Roles");
     }
 
     private IEnumerable<string> GetSelectedPermissions()
@@ -103,5 +132,12 @@ public partial class CreateOrEditRole
         });
 
         return _selectedPermissions;
+    }
+
+
+    public void Dispose()
+    {
+        StateProvider.State = null;
+      //  Interceptor.DisposeEvent();
     }
 }

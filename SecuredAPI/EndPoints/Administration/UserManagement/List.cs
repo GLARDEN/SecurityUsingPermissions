@@ -4,6 +4,7 @@ using Ardalis.Result.AspNetCore;
 using Microsoft.AspNetCore.Mvc;
 
 using Security.Core.Models.UserManagement;
+using Security.Core.Models.UserManagement.Services;
 using Security.Core.Models.WeatherForecast;
 
 namespace SecuredAPI.EndPoints.Administration.UserManagement;

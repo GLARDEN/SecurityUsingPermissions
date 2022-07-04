@@ -1,4 +1,5 @@
-﻿using Security.Core.Permissions.Constants;
+﻿using Security.Core.Models.UserManagement;
+using Security.Core.Permissions.Constants;
 
 using System;
 using System.Collections.Generic;
@@ -20,18 +21,28 @@ public static class ClaimsExtensions
     /// <returns>The UserName, or null if not logged in</returns>
     public static string GetUserNameFromClaims(this IEnumerable<Claim> claims)
     {
-        return claims?.SingleOrDefault(x => x.Type == ClaimTypes.Name)?.Value;
+        return claims?.SingleOrDefault(x => x.Type == ClaimTypes.Name)?.Value ?? string.Empty;
     }
-
+    /// <summary>
+    /// This returns the Device Id from the current user's claims
+    /// </summary>
+    /// <param name="claims"></param>
+    /// <returns>The UserName, or null if not logged in</returns>
+    public static Guid GetDeviceIdFromClaims(this IEnumerable<Claim> claims)
+    {        
+        Guid.TryParse(claims.SingleOrDefault(x => x.Type == ClaimsConstants.DeviceId)?.Value ?? string.Empty, out Guid deviceId);
+        return deviceId;
+    }
 
     /// <summary>
     /// This returns the UserId from the current user's claims
     /// </summary>
     /// <param name="claims"></param>
     /// <returns>The UserId, or null if not logged in</returns>
-    public static string GetUserIdFromClaims(this IEnumerable<Claim> claims)
+    public static Guid GetUserIdFromClaims(this IEnumerable<Claim> claims)
     {
-        return claims?.SingleOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
+        Guid.TryParse(claims.SingleOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value ?? string.Empty,out Guid userId);
+        return userId;
     }
 
     /// <summary>
@@ -39,11 +50,20 @@ public static class ClaimsExtensions
     /// </summary>
     /// <param name="user">The current ClaimsPrincipal user</param>
     /// <returns>The UserId, or null if not logged in</returns>
-    public static string GetUserIdFromUser(this ClaimsPrincipal user)
+    public static Guid GetUserIdFromUser(this ClaimsPrincipal user)
     {
-        return user?.Claims.GetUserIdFromClaims();
+        return user.Claims.GetUserIdFromClaims();
     }
 
+    /// <summary>
+    /// This returns the Device Id from the current user's claims
+    /// </summary>
+    /// <param name="claims"></param>
+    /// <returns>The UserName, or null if not logged in</returns>
+    public static Guid GetDeviceIdFromUser(this ClaimsPrincipal user)
+    {
+        return user.Claims.GetDeviceIdFromClaims();
+    }
 
     /// <summary>
     /// This returns the AuthP packed permissions. Can be null if no user, or not packed permissions claims
@@ -52,6 +72,6 @@ public static class ClaimsExtensions
     /// <returns>The packed permissions, or null if not logged in</returns>
     public static string GetPackedPermissionsFromUser(this ClaimsPrincipal user)
     {
-        return user?.Claims.SingleOrDefault(x => x.Type == PermissionConstants.PackedPermissionClaimType)?.Value;
+        return user?.Claims.SingleOrDefault(x => x.Type == PermissionConstants.PackedPermissionClaimType)?.Value ?? string.Empty;
     }
 }

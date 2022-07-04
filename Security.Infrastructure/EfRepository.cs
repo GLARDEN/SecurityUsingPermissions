@@ -1,5 +1,4 @@
 ﻿using Ardalis.Specification.EntityFrameworkCore;
-
 using Security.SharedKernel.Interfaces;
 
 namespace Security.Infrastructure;

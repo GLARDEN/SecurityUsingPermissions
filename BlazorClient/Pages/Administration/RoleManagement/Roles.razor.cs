@@ -1,22 +1,32 @@
+using Ardalis.Result;
+
+using BlazorClient.Interfaces;
 using BlazorClient.Providers;
 using BlazorClient.Services;
 
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Authorization;
 
+using Security.Core.Models;
 using Security.Core.Models.Administration.RoleManagement;
+
+using System.Net;
 
 namespace BlazorClient.Pages.Administration.RoleManagement;
 
-public partial class Roles
+public partial class Roles : IDisposable
 {
+    [CascadingParameter]
+    public Task<AuthenticationState> AuthenticationState { get; set; }
+
     [Inject]
     public NavigationManager NavigationManager { get; set; } = null!;
 
-    [Inject] 
+    [Inject]
     protected IAppStateProvider<RoleDto> StateProvider { get; set; } = null!;
 
     [Inject]
-    public IRoleService RoleService { get; set; }
+    public IRoleUiService RoleUiService { get; set; }
 
     private string PageTitle { get; set; }
 
@@ -29,19 +39,23 @@ public partial class Roles
 
     protected override void OnInitialized()
     {
-        StateProvider.OnStateChange += StateHasChanged;
+        StateProvider.OnStateChange += StateHasChanged; 
     }
 
 
     protected override async Task OnInitializedAsync()
     {
-        _roleList = await RoleService.ListRoles();
+        ApiResponse<ListRolesResponse> apiResponse = await RoleUiService.ListRoles();
+        if (apiResponse.StatusCode == HttpStatusCode.OK)
+        {
+            _roleList = apiResponse?.Data?.Roles?.ToList() ?? new List<RoleDto>();
+        }
     }
 
     private void CreateNewRole()
     {
-       StateProvider.State =null;
-       NavigationManager.NavigateTo("/RoleManagement/CreateOrEditRole");
+        StateProvider.State = null;
+        NavigationManager.NavigateTo("/RoleManagement/CreateOrEditRole");
     }
     private void EditRole(RoleDto roleDto)
     {
@@ -57,14 +71,11 @@ public partial class Roles
         };
 
 
-        await RoleService.DeleteAsync(deleteRoleRequest);
-       
+        await RoleUiService.DeleteAsync(deleteRoleRequest);
+
         _roleList.Remove(role);
-       
+
     }
 
-    public void Dispose()
-    {
-        StateProvider.OnStateChange -= StateHasChanged;
-    }
+    public void Dispose() => StateProvider.OnStateChange -= StateHasChanged;
 }

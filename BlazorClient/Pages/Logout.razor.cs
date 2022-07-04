@@ -1,4 +1,5 @@
-﻿using BlazorClient.Services;
+﻿using BlazorClient.Interfaces;
+
 using Microsoft.AspNetCore.Components;
 
 namespace BlazorClient.Pages;
@@ -6,12 +7,13 @@ namespace BlazorClient.Pages;
 public partial class Logout : ComponentBase
 {
     [Inject]
-    public IUserService UserService { get; set; } = null!;
+    public IAuthenticationUiService AuthenticationUiService { get; set; } = null!;
     [Inject]
     public NavigationManager NavigationManager { get; set; } = null!;
     protected override async Task OnInitializedAsync()
     {
-        await UserService.Logout();
+
+        await AuthenticationUiService.LogOutAsync(false);
         
         NavigationManager.NavigateTo("/");
     }

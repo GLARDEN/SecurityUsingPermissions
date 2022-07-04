@@ -1,37 +1,25 @@
+
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 
 using MediatR;
 
 using Security.Core;
-using Security.Core.Authorization.Handlers;
-using Security.Core.Authorization.Providers;
-using Security.Core.Events;
-using Security.Core.Services;
 using Security.Infrastructure;
-
-WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
+using Security.SharedKernel;
+var builder = WebApplication.CreateBuilder(args);
 
 builder.Host.UseServiceProviderFactory(new AutofacServiceProviderFactory());
 
 string connectionString = builder.Configuration.GetConnectionString("SqlServerConnection");
 
-var assemblies = new Assembly[]
-{
-    typeof(Program).Assembly,
-    typeof(CoreModule).Assembly,
-    typeof(InfrastructureModule).Assembly
-};
-
-builder.Host.ConfigureContainer<ContainerBuilder>(containerBuilder =>
-{
-    containerBuilder.RegisterModule(new CoreModule());
-    containerBuilder.RegisterModule(new InfrastructureModule(builder.Environment.EnvironmentName == "Development"));
-});
-
+builder.Services.AddDbContext(connectionString);
+builder.Services.AddControllers().AddNewtonsoftJson();
 builder.Services.AddMemoryCache();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(c =>
+
+
+builder.Services.AddSwaggerGen(option =>
 {
     //TODO - Lowercase Swagger Documents
     //c.DocumentFilter<LowercaseDocumentFilter>();
@@ -47,12 +35,11 @@ builder.Services.AddSwaggerGen(c =>
             var xmlPath = Path.Combine(baseDirectory, xmlFile);
             if (File.Exists(xmlPath))
             {
-                c.IncludeXmlComments(xmlPath);
+                option.IncludeXmlComments(xmlPath);
             }
         }
     }
-
-    c.SwaggerDoc("v1", new OpenApiInfo
+    option.SwaggerDoc("v1", new OpenApiInfo
     {
         Version = "v1",
         Title = "SecuuredAPI",
@@ -62,36 +49,48 @@ builder.Services.AddSwaggerGen(c =>
             Url = new Uri("https://opensource.org/licenses/MIT")
         }
     });
-
-    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    option.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Name = "Authorization",
-        In = ParameterLocation.Header,
         Type = SecuritySchemeType.ApiKey,
+        In = ParameterLocation.Header,
         Scheme = "Bearer",
         BearerFormat = "JWT",
         Description = "Input your Bearer token in this format - Bearer {your token here} to access this API",
     });
-    c.AddSecurityRequirement(new OpenApiSecurityRequirement
-   {
-                    {
-                        new OpenApiSecurityScheme
-                        {
-                            Reference = new OpenApiReference
-                            {
-                                Type = ReferenceType.SecurityScheme,
-                                Id = "Bearer",
-                            },
-                            Scheme = "Bearer",
-                            Name = "Bearer",
-                            In = ParameterLocation.Header,
-                        }, new List<string>()
-                    },
-   });
+    option.AddSecurityRequirement(new OpenApiSecurityRequirement
+ {
+     {
+           new OpenApiSecurityScheme
+             {
+                 Reference = new OpenApiReference
+                 {
+                     Type = ReferenceType.SecurityScheme,
+                     Id = "Bearer"
+                 }
+             },
+             new string[] {}
+     }
+ });
 });
 
-builder.Services.AddHttpContextAccessor();
+var assemblies = new Assembly[]
+{
+    typeof(SharedKernelModule).Assembly,
+    typeof(CoreModule).Assembly,
+    typeof(InfrastructureModule).Assembly,
+    typeof(WebAPIModule).Assembly
+
+};
 builder.Services.AddAutoMapper(assemblies);
+
+builder.Host.ConfigureContainer<ContainerBuilder>(containerBuilder =>
+{
+    containerBuilder.RegisterModule(new WebAPIModule());
+    containerBuilder.RegisterModule(new SharedKernelModule());
+    containerBuilder.RegisterModule(new CoreModule());
+    containerBuilder.RegisterModule(new InfrastructureModule(builder.Environment.EnvironmentName == "Development"));
+});
 
 builder.Services.AddCors(opt =>
 {
@@ -109,88 +108,104 @@ builder.Services.AddAuthentication(options =>
     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
     options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
 })
-    .AddJwtBearer(options =>
-{
-    options.SaveToken = true;
-    options.TokenValidationParameters = new TokenValidationParameters
+.AddJwtBearer(options =>
     {
-        ValidateIssuerSigningKey = true,
-        IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(builder.Configuration["JWTSettings:Secret"])),
-        ValidateIssuer = false,
-        ValidateAudience = false,
-        ValidateLifetime = true,
-        ClockSkew = TimeSpan.Zero,
-    };
-    options.Events = new JwtBearerEvents
-    {
-        OnAuthenticationFailed = context =>
+        options.SaveToken = true;
+        options.TokenValidationParameters = new TokenValidationParameters
         {
-            if (context.Exception.GetType() == typeof(SecurityTokenExpiredException))
+            ValidateIssuerSigningKey = true,
+
+            ValidateIssuer = false,
+            ValidateAudience = false,
+            ValidateLifetime = true,
+            ValidIssuer = builder.Configuration["JwtAuth:Issuer"],
+            ValidAudience = builder.Configuration["JwtAuth:Issuer"],
+            IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(builder.Configuration["JWTSettings:Secret"])),
+            ClockSkew = TimeSpan.Zero,
+        };
+        options.Events = new JwtBearerEvents
+        {
+            OnAuthenticationFailed = context =>
             {
-                context.Response.Headers.Add("Token-Expired", "true");
+                if (context.Exception.GetType() == typeof(SecurityTokenExpiredException))
+                {
+                    context.Response.Headers.Add("Token-Expired", "true");
+}
+                return Task.CompletedTask;
             }
-            return Task.CompletedTask;
-        }
-    };
-});
-
-builder.Services.AddSingleton<IAuthorizationPolicyProvider, AuthorizationPolicyProvider>();
-builder.Services.AddSingleton<IAuthorizationHandler, PermissionPolicyHandler>();
-builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
-builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
-builder.Services.AddScoped<IProfileService, ProfileService>();
-builder.Services.AddScoped<IForecastService, ForecastService>();
-builder.Services.AddScoped<IRoleService, RoleService>();
-builder.Services.AddScoped<IUserManagementService, UserManagementService>();
-builder.Services.AddScoped<IDatabaseCreator, DatabaseCreator>();
-builder.Services.AddDbContext(connectionString);
-
-builder.Services.AddControllers().AddNewtonsoftJson();
+        };
+    });
 
 
-
-//ServiceLocator.SetLocatorProvider(builder.Services.BuildServiceProvider());
-//DomainEvents.Mediator = () => ServiceLocator.Current.GetInstance<IMediator>();
 
 var app = builder.Build();
-
-
 
 if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
 }
-
-app.UseHttpsRedirection();
 app.UseCors(x => x
                 .AllowAnyOrigin()
                 .AllowAnyMethod()
-                .AllowAnyHeader());
+                .AllowAnyHeader()
+                );
 
 app.UseRouting();
+app.UseHttpsRedirection();
+
+
+
+//app.AddCors(options =>
+//{
+//    options.AddPolicy("Policy1",
+//        builder =>
+//        {
+//            builder.WithOrigins("http://example.com",
+//                                "http://www.contoso.com");
+//        });
+
+//    options.AddPolicy("AllowedClientPolicy",
+//        builder =>
+//        {
+//            builder.WithOrigins($"https://{host}:7047/",
+//                                $"http://{host}:5000",   // gglwa
+//                                $"https://{host}:5001",  // gglwa
+//                                $"http://{host}:5004",   // gglsv
+//                                $"https://{host}:5005",  // gglsv
+//                                $"https://{host}:44374", // gglwa
+//                                $"https://{host}:44370", // gglsv
+//                                $"http://localhost:5000",   // gglwa
+//                                $"https://localhost:5001",  // gglwa
+//                                $"http://localhost:5004",   // gglsv
+//                                $"https://localhost:5005",  // gglsv
+//                                $"https://localhost:44374", // gglwa
+//                                $"https://localhost:44370") // gglsv
+//                                .AllowAnyHeader()
+//                                .AllowAnyMethod();
+//        });
+//});
+
 app.UseAuthentication();
+
 app.UseAuthorization();
 
 app.UseEndpoints(endpoints =>
 {
     endpoints.MapControllers();
 });
+
 app.UseSwagger();
-app.UseSwaggerUI();
 app.UseSwaggerUI(options =>
 {
-    // options.SwaggerEndpoint("/swagger/v1/swagger.json", typeof(Program).Assembly.GetName().Name);
+    options.SwaggerEndpoint("/swagger/v1/swagger.json", typeof(Program).Assembly.GetName().Name);
     options.RoutePrefix = "swagger";
+
     options.DisplayRequestDuration();
 });
 
-app.UseEndpoints(endpoints =>
-{
-    endpoints.MapControllers();
-});
+SetUpMediatR(app);
 
 EnsureDataStorageIsReady(app, builder.Configuration);
-
 
 
 app.Run();
@@ -227,4 +242,16 @@ void EnsureDataStorageIsReady(IHost app, IConfiguration configuration)
         throw;
     }
 
+}
+
+
+void SetUpMediatR(IApplicationBuilder app)
+{
+    var serviceProvider = app.ApplicationServices;
+    DomainEvents.Mediator = () => BuildMediator(serviceProvider);
+}
+
+IMediator BuildMediator(IServiceProvider serviceProvider)
+{
+    return serviceProvider.GetRequiredService<IMediator>();
 }

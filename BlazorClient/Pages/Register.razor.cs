@@ -1,30 +1,35 @@
-﻿using BlazorClient.Services;
+﻿using Ardalis.Result;
+
+using BlazorClient.Interfaces;
 
 using Microsoft.AspNetCore.Components;
 
+using Security.Core.Models;
 using Security.Core.Models.Authentication;
+
+using System.Net;
 
 namespace BlazorClient.Pages;
 
 public partial class Register : ComponentBase
 {
     [Inject]
-    private IUserService UserService { get; set; }
-
-    private RegistrationRequestDto registrationRequest = new();
+    private IAuthenticationUiService UserService { get; set; }
+    
     private string PageTitle = "Register";
-    private string ErrorMessage = string.Empty;
+    private List<string>? _messages = new();
+    private RegistrationRequestDto registrationRequest = new();
 
     private async Task HandleRegistration() 
     {                
-        RegistrationResponseDto result = await UserService.RegisterUserAsync(registrationRequest);
-        if (result.IsRegistrationSuccessful)
-        {
-            ErrorMessage = result.Errors.FirstOrDefault() ?? "";
+        ApiResponse<RegistrationResponse> apiResponse = await UserService.RegisterUserAsync(registrationRequest);
+        if (apiResponse.StatusCode != HttpStatusCode.OK)
+{
+            _messages = apiResponse?.ResponseMessages;
         }
         else
         {
-            ErrorMessage = string.Empty;
+            _messages = null;
         }        
     }
 }

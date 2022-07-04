@@ -2,9 +2,6 @@
 
 public class CreateForecastResponse
 {
-    public WeatherForecastDto Forecast { get; set; } = null!;
-    public bool Success { get; set; }
-
-
+    public int Id { get; set; }
 }
 

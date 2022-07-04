@@ -4,63 +4,60 @@ using System.Net.Http.Headers;
 using System.Security.Claims;
 using BlazorClient.Services;
 using System.Security.Principal;
+using BlazorClient.Interfaces;
+using System.Net.Http;
 
 namespace BlazorClient.Providers;
 
 public class AuthStateProvider : AuthenticationStateProvider
-{
-    private readonly IHttpClientFactory _httpClientFactory;
-    private readonly ILocalStorageService _localStorageService;
-    private readonly ITokenService _tokenService;
-    private readonly HttpClient _httpClient;
-    private readonly AuthenticationState _anonymous = new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
+{    
 
-    public AuthStateProvider(IHttpClientFactory httpClientFactory, ILocalStorageService localStorageService, ITokenService tokenService)
+    private readonly IJwtTokenService _jwtTokenService;    
+      private readonly AuthenticationState _anonymousAuthState = new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
+
+
+    public AuthStateProvider( IJwtTokenService jwtTokenService) 
     {
-        _httpClient = httpClientFactory.CreateClient("WebAPI");
-        _localStorageService = localStorageService;
-        _tokenService = tokenService;
+        _jwtTokenService = jwtTokenService;        
     }
+
     public override async Task<AuthenticationState> GetAuthenticationStateAsync()
     {
         ClaimsIdentity identity = new ClaimsIdentity();
-    
-        string token = await _tokenService.GetTokenAsync();
 
-        _httpClient.DefaultRequestHeaders.Authorization = null;
+        string jwtToken = await _jwtTokenService.GetJwtTokenAsync();
 
-        if (!String.IsNullOrEmpty(token))
+        if (String.IsNullOrEmpty(jwtToken) || await _jwtTokenService.IsJwtTokenExpiredAsync(jwtToken))
         {
-            try
-            {
-                bool isTokenExpired = await _tokenService.IsTokenExpiredAsync(token);
-                if (isTokenExpired)
-                {
-                    await _tokenService.RemoveTokenAsync();
-                    identity = new ClaimsIdentity();
-                }
-                else
-                {
-                    IEnumerable<Claim> claims = await _tokenService.GetClaimsFromTokenAsync(token);
-                  
-                    identity = new ClaimsIdentity(claims, "jwt");
-                    _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token.Replace("\"", ""));
-                }
-            }
-            catch
-            {
-                await _tokenService.RemoveTokenAsync();
-                identity = new ClaimsIdentity();                
-            }
+            return _anonymousAuthState;
         }
+
+        try
+        {
+            IEnumerable<Claim> claims = _jwtTokenService.GetClaimsFromJwtToken(jwtToken);
+            identity = new ClaimsIdentity(claims, "jwtAuthType");
+        }
+        catch
+        {
+            return _anonymousAuthState;
+        }
+
 
         ClaimsPrincipal user = new ClaimsPrincipal(identity);
         AuthenticationState authenticationState = new AuthenticationState(user);
 
-        NotifyAuthenticationStateChanged(Task.FromResult(authenticationState));
-
         return authenticationState;
     }
+    public async Task NotifyUserAuthenticationAsync()
+    {
+       NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
+     
+    }
 
-   
+    public void NotifyUserLogout()
+    {
+        var authState = Task.FromResult(_anonymousAuthState);
+        NotifyAuthenticationStateChanged(authState);
+        
+    }
 }

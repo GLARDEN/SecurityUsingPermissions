@@ -1,10 +1,11 @@
 ﻿using Autofac;
 using System.Reflection;
-using MediatR;
-using MediatR.Pipeline;
 using Module = Autofac.Module;
+
 using Security.Core;
 using Security.SharedKernel.Interfaces;
+using MediatR;
+using MediatR.Pipeline;
 
 namespace Security.Infrastructure;
 public class InfrastructureModule : Module
@@ -15,7 +16,7 @@ public class InfrastructureModule : Module
     public InfrastructureModule(bool isDevelopment, Assembly? callingAssembly = null)
     {
         _isDevelopment = isDevelopment;
-        var coreAssembly = Assembly.GetAssembly(typeof(CoreModule)); // TODO: Replace "Project" with any type from your Core project
+        var coreAssembly = Assembly.GetAssembly(typeof(CoreModule)); 
         var infrastructureAssembly = Assembly.GetAssembly(typeof(InfrastructureModule));
         if (coreAssembly != null)
         {
@@ -47,9 +48,10 @@ public class InfrastructureModule : Module
     private void RegisterCommonDependencies(ContainerBuilder builder)
     {
         builder.RegisterGeneric(typeof(EfRepository<>))
-            .As(typeof(IRepository<>))
-            .As(typeof(IReadRepository<>))
-            .InstancePerLifetimeScope();
+          .As(typeof(IRepository<>))
+          .As(typeof(IReadRepository<>))
+          .InstancePerLifetimeScope();
+
 
         builder
             .RegisterType<Mediator>()
@@ -78,6 +80,7 @@ public class InfrastructureModule : Module
             .AsImplementedInterfaces();
         }
 
+        builder.RegisterType<DatabaseCreator>().As<IDatabaseCreator>().InstancePerLifetimeScope();
         //builder.RegisterType<EmailSender>().As<IEmailSender>()
         //    .InstancePerLifetimeScope();
     }

@@ -10,13 +10,16 @@ public class UpdateRoleRequest
 
     public static UpdateRoleRequest FromDto(RoleDto roleDto)
     {
-        return new()
+        UpdateRoleRequest newRequest = new()
         {
             Id = roleDto.Id,
             Name = roleDto.Name,
             Description = roleDto.Description,
             PermissionNames = roleDto.PermissionsInRole
         };
+
+        return newRequest;
+
     }
 }
 

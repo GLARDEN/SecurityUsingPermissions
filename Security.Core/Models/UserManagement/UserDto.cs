@@ -1,4 +1,6 @@
-﻿namespace Security.Core.Models.UserManagement;
+﻿using Security.Core.Models.Authentication;
+
+namespace Security.Core.Models.UserManagement;
 public class UserDto
 {
     public Guid Id { get; set; }
@@ -7,7 +9,9 @@ public class UserDto
 
     public DateTime CreatedWhen { get; set; } = DateTime.Now;
 
-    public IEnumerable<string> RoleNames { get; set; } = new List<string>();
+    public List<UserRoleDto> AssignedRoles { get; set; } = new List<UserRoleDto>();
+    
+    public List<RefreshTokenDto> RefreshTokens { get; set; } = new List<RefreshTokenDto>();
     public UserDto() { }
 
 }

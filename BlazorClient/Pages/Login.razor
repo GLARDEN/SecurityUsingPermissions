@@ -1,28 +1,45 @@
 ﻿@page "/login"
+@layout AuthenticationLayout
 @using Microsoft.AspNetCore.Authorization
 
 @attribute [AllowAnonymous]
-
-<h3>Login</h3>
-
-<EditForm Model="_loginRequest" OnValidSubmit="ExecuteLogin" class="card card-body bg-light mt-5">    
-    <div class="form-group row">
-        <label for="email" class="col-md-2 col-form-label">Email:</label>
-        <div class="col-md-10">
-            <InputText id="email" class="form-control" @bind-Value="_loginRequest.Email"/> 
-            
-        </div>
-    </div>
-    <div class="form-group row">
-        <label for="password" class="col-md-2 col-form-label">Password:</label>
-        <div class="col-md-10">
-            <InputText type="password" id="password" class="form-control" @bind-Value="_loginRequest.Password" />
-            
-        </div>
-    </div>
+<div class="my-auto mx-auto">
     <div class="row">
-        <div class="col-md-12 text-right">
-            <button type="submit" class="btn btn-success">Login</button>
+        <div class="col-5">
+            <EditForm Model="_loginRequest" OnValidSubmit="ExecuteLogin" class="card card-body bg-light justify-content-center">
+                <div class="form-group row">
+                    <label for="email" class="col-2 col-form-label">Email:</label>
+                    <div class="col-8">
+                        <InputText id="email" class="form-control" @bind-Value="_loginRequest.Email" />
+                    </div>
+                </div>
+                <div class="form-groupmt-2 row">
+                    <label for="password" class="col-2 col-form-label">Password:</label>
+                    <div class="col-8">
+                        <InputText type="password" id="password" class="form-control" @bind-Value="_loginRequest.Password" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-12 text-end">
+                        <button type="submit" class="btn btn-success">Login</button>
+                    </div>
+                </div>
+
+                @if (ShowAuthenticationError)
+                {
+                    <div class="row bg-danger mt-5">
+                        <label for="error" class="col-md-2 col-form-label fw-bold">Error:</label>
+                        <div class="col-md-10">
+                            @foreach (var message in Messages)
+                            {
+                                <span class="fw-bold">@message</span>
+
+                                <br />
+                            }
+                        </div>
+                    </div>
+                }
+            </EditForm>
         </div>
     </div>
-</EditForm>
+</div>

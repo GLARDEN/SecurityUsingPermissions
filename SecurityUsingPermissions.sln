@@ -11,7 +11,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Security.Infrastructure", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Security.Core", "Security.Core\Security.Core.csproj", "{21126912-6416-48D2-A67C-132C0D4E98CA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Security.SharedKernel", "Security.SharedKernel\Security.SharedKernel.csproj", "{B9692516-6CF0-40B9-8CF3-ECDE6CEA5ABE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Security.SharedKernel", "Security.SharedKernel\Security.SharedKernel.csproj", "{B9692516-6CF0-40B9-8CF3-ECDE6CEA5ABE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

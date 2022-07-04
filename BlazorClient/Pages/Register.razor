@@ -3,6 +3,14 @@
 <h3>@PageTitle</h3>
 @attribute [AllowAnonymous]
 <EditForm Model="registrationRequest" OnValidSubmit="HandleRegistration">
+    <div>
+        <div class="mb-3">
+            @foreach(var message in _messages)
+            {
+                <li>message</li>
+            }
+        </div>
+    </div>
     <div class="mb-3">
         <label for="email">Email</label>
         <InputText id="email" @bind-Value="registrationRequest.Email" class="form-control" />

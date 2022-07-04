@@ -1,102 +1,143 @@
-﻿using AutoMapper;
+﻿using System.Security.Claims;
+
+using Ardalis.Result;
+
+using AutoMapper;
 
 using Security.Core.Models;
 using Security.Core.Models.Authentication;
 using Security.Core.Models.UserManagement;
-using Security.Infrastructure;
-
-using System.Security.Claims;
-using System.Security.Cryptography;
+using Security.Core.Models.UserManagement.Specifications;
+using Security.Core.Permissions.Helpers;
+using Security.Core.Services;
+using Security.SharedKernel.Interfaces;
 
 namespace SecuredAPI.Services;
 
 public class AuthenticationService : IAuthenticationService
 {
     private readonly IMapper _mapper;
-    private readonly AppDbContext _appDbContext;
+    private readonly IRepository<User> _userRepository;
     private readonly IJwtTokenService _jwtTokenService;
-    private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly IRefreshTokenService _refreshTokenService;
+    private readonly IHashService _hashService;
 
-    public AuthenticationService(IMapper mapper, AppDbContext appDbContext, IJwtTokenService jwtTokenService, IHttpContextAccessor httpContextAccessor)
+    public AuthenticationService(IMapper mapper,
+                                 IRepository<User> userRepository,
+                                 IJwtTokenService jwtTokenService,
+                                 IRefreshTokenService refreshTokenService,
+                                 IHashService hashService)
     {
         _mapper = mapper;
-        _appDbContext = appDbContext;
+        _userRepository = userRepository;
         _jwtTokenService = jwtTokenService;
-        _httpContextAccessor = httpContextAccessor;
+        _refreshTokenService = refreshTokenService;
+        _hashService = hashService;
     }
 
     public async Task<ChangePasswordResponse> ChangePassword(ChangePasswordRequest changePasswordRequest)
     {
-        User? user = await _appDbContext.Users.FindAsync(changePasswordRequest.UserId);
+        User? user = await _userRepository.GetByIdAsync(new GetUserByIdSpec(changePasswordRequest.UserId));
 
         if (user == null)
         {
             return new ChangePasswordResponse() { PasswordChangeSuccessfull = false, ErrorMessage = "User Not Found." };
         }
 
-        CreatePasswordHash(changePasswordRequest.Password, out byte[] passwordHash, out byte[] passwordSalt);
+        _hashService.CreateHash(changePasswordRequest.Password, out byte[] passwordHash, out byte[] passwordSalt);
         user.SetPasswordHash(passwordHash, passwordSalt);
 
-        await _appDbContext.SaveChangesAsync();
+        await _userRepository.SaveChangesAsync();
 
         return new ChangePasswordResponse() { PasswordChangeSuccessfull = true };
 
     }
 
-    public async Task<LoginResponseDto> LoginAsync(LoginRequestDto loginRequest)
+    public async Task<Result<LoginResponse>> LoginAsync(LoginRequest loginRequest)
     {
-        LoginResponseDto loginResponse = new();
+        LoginResponse loginResponse = new();
 
-        User? user = await _appDbContext.Users.Include(u => u.UserRoles).FirstOrDefaultAsync(u => u.Email.ToLower().Equals(loginRequest.Email.ToLower()));
+        User? user = await _userRepository.GetBySpecAsync(new GetUserByEmailSpec(loginRequest.Email));
 
         if (user == null)
         {
-            loginResponse.IsAuthenticationSuccessful = false;
-            loginResponse.ErrorMessage = "Login attempt failed";
+            return Result<LoginResponse>.Unauthorized();
         }
-        else if (!VerifyPasswordHash(loginRequest.Password, user.PasswordHash, user.PasswordSalt))
+        else if (!_hashService.VerifyHash(loginRequest.Password, user.PasswordHash, user.PasswordSalt))
         {
-            loginResponse.IsAuthenticationSuccessful = false;
-            loginResponse.ErrorMessage = "Login attempt failed";
+            return Result<LoginResponse>.Unauthorized();
         }
         else
         {
-            //TODO: Pull user info and claims (permissions) from database
             var userTokenInfo = new UserTokenDetails()
             {
                 Id = user.Id,
+                DeviceId = Guid.NewGuid(),
                 Email = user.Email,
                 Permissions = GetPermissionsForUser(user.UserRoles.ToList() ?? new List<UserRole>())
             };
 
-            loginResponse.Token = _jwtTokenService.GenerateToken(userTokenInfo);
-            loginResponse.IsAuthenticationSuccessful = true;
-        }
+            RefreshToken refreshToken = _refreshTokenService.GenerateRefreshToken(userTokenInfo);
+            user.SetRefreshToken(refreshToken);
 
-        return loginResponse;
+            await _userRepository.UpdateAsync(user);
+            await _userRepository.SaveChangesAsync();
+
+            loginResponse.UserId = user.Id;
+            loginResponse.JwtToken = _jwtTokenService.GenerateJWTToken(userTokenInfo);
+            loginResponse.RefreshToken = refreshToken.Token;
+            loginResponse.IsAuthenticationSuccessful = true;
+
+            return Result<LoginResponse>.Success(loginResponse);
+        }
     }
 
-    public async Task<RegistrationResponseDto> RegisterAsync(RegistrationRequestDto registrationRequest, string password)
+    public async Task<Result<LogOutResponse>> LogOutAsync(LogOutRequest logOutRequest)
+    {
+        
+        LogOutResponse loginResponse = new()
+        {
+            UserId = logOutRequest.UserId
+        };
+
+        User? user = null;
+
+        if (user != null)
+        {
+            user = await _userRepository.GetBySpecAsync(new GetUserFilterRefreshTokenByDeviceIdSpec(logOutRequest.UserId, logOutRequest.DeviceId));
+            user.RevokeRefreshToken(logOutRequest.DeviceId);
+
+
+            await _userRepository.UpdateAsync(user);
+            await _userRepository.SaveChangesAsync();
+
+            return Result<LogOutResponse>.Success(loginResponse);
+        }
+
+        return Result<LogOutResponse>.Success(loginResponse);
+    }
+
+    public async Task<RegistrationResponse> RegisterAsync(RegistrationRequestDto registrationRequest, string password)
     {
 
         if (await UserExists(registrationRequest.Email))
         {
-            return new RegistrationResponseDto()
+            return new RegistrationResponse()
             {
                 IsRegistrationSuccessful = false,
                 Errors = new List<string>() { "User already exists." }
             };
         }
 
-        CreatePasswordHash(password, out byte[] passwordHash, out byte[] passwordSalt);
+        _hashService.CreateHash(password, out byte[] passwordHash, out byte[] passwordSalt);
 
-        User _newUser = new User(Guid.NewGuid(),registrationRequest.Email, passwordHash, passwordSalt);
+        User _newUser = new User(Guid.NewGuid(), registrationRequest.Email, passwordHash, passwordSalt);
 
-        _appDbContext.Users.Add(_newUser);
+        await _userRepository.AddAsync(_newUser);
 
-        await _appDbContext.SaveChangesAsync();
+        await _userRepository.SaveChangesAsync();
 
-        RegistrationResponseDto _registrationResponse = new RegistrationResponseDto()
+        RegistrationResponse _registrationResponse = new RegistrationResponse()
         {
             Id = _newUser.Id,
             IsRegistrationSuccessful = true,
@@ -106,40 +147,23 @@ public class AuthenticationService : IAuthenticationService
         return _registrationResponse;
     }
 
-    public Guid GetUserId()
-    {
-        string userIdResult = _httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty;
-
-        return Guid.Parse(userIdResult);
-    }
-
     public async Task<bool> UserExists(string email)
     {
-        if (await _appDbContext.Users.AnyAsync(u => u.Email.ToLower().Equals(email.ToLower())))
+        if (await _userRepository.AnyAsync(new GetUserByEmailSpec(email)))
         {
             return true;
         }
+
         return false;
     }
 
-    private bool VerifyPasswordHash(string password, byte[] passwordHash, byte[] passwordSalt)
+    public async Task<User?> GetUserWithRefreshTokenAsync(Guid id)
     {
-        using HMACSHA512 hmac = new HMACSHA512(passwordSalt);
-
-        byte[] computedHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
-
-        return computedHash.SequenceEqual(passwordHash);
+        User? user = await _userRepository.GetBySpecAsync(new GetUserWithRefreshTokensSpec(id));
+        return user;
     }
 
-    private void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)
-    {
-        using var hmac = new HMACSHA512();
-
-        passwordSalt = hmac.Key;
-        passwordHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
-    }
-
-    private string GetPermissionsForUser(List<UserRole> userRoles)
+    public string GetPermissionsForUser(List<UserRole> userRoles)
     {
         List<string> assignedPermissions = userRoles.Select(ur => ur.AssignedPermissions).ToList();
 
@@ -151,4 +175,67 @@ public class AuthenticationService : IAuthenticationService
 
         return packedPermissionsForUser;
     }
+
+    public async Task<Result<RefreshTokenResponse>> RefreshTokenAsync(RefreshTokenRequest refreshTokenRequest)
+    {
+        RefreshTokenResponse refreshTokenResponse = new();
+
+        if (!_jwtTokenService.ValidateJwtToken(refreshTokenRequest.JwtToken))
+        {
+            return Result<RefreshTokenResponse>.Unauthorized();
+        }
+
+        ClaimsPrincipal claimsPrincipal = _jwtTokenService.GetPrincipalFromExpiredToken(refreshTokenRequest?.JwtToken);
+
+        Guid userId = claimsPrincipal.GetUserIdFromUser();
+        Guid deviceId = claimsPrincipal.GetDeviceIdFromUser();
+
+        User? user = await _userRepository.GetBySpecAsync(new GetUserFilterRefreshTokenByDeviceIdSpec(userId, deviceId));
+        if (user != null)
+        {
+            if (!user.RefreshTokens.Any(r => r.Token.Equals(refreshTokenRequest?.RefreshToken)))
+            {
+                return Result<RefreshTokenResponse>.Unauthorized();
+            }
+
+            RefreshToken? refreshToken = user.RefreshTokens.FirstOrDefault(t => t.Token == refreshTokenRequest?.RefreshToken &&
+                                                                                t.DeviceId.Equals(deviceId));
+
+            if (refreshToken != null)
+            {
+                if (_refreshTokenService.ValidateRefreshToken(refreshTokenRequest?.RefreshToken, refreshToken.TokenHash, refreshToken.TokenSalt))
+                {
+                    if (refreshToken.IsInvalid || refreshToken.Expiry < DateTime.Now)
+                    {
+                        user.RevokeRefreshToken(refreshToken.DeviceId);
+                        await _userRepository.UpdateAsync(user);
+                        await _userRepository.SaveChangesAsync();
+                        return Result<RefreshTokenResponse>.Unauthorized();
+                    }
+                    else
+                    {
+                        var userTokenDetails = new UserTokenDetails()
+                        {
+                            Id = user.Id,
+                            DeviceId = deviceId,
+                            Email = user.Email,
+                            Permissions = GetPermissionsForUser(user.UserRoles.ToList() ?? new List<UserRole>())
+                        };
+
+                        refreshTokenResponse.JWTToken = _jwtTokenService.GenerateJWTToken(userTokenDetails);
+                        refreshTokenResponse.RefreshToken = refreshTokenRequest.RefreshToken;
+                        refreshTokenResponse.IsAuthenticationSuccessful = true;
+                        return Result<RefreshTokenResponse>.Success(refreshTokenResponse);
+                    }
+                }
+            }
+            else
+            {
+                return Result<RefreshTokenResponse>.Unauthorized();
+            }
+        }
+        return Result<RefreshTokenResponse>.Unauthorized();
+    }
+
+
 }

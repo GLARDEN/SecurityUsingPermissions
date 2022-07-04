@@ -7,7 +7,7 @@ using System.Reflection;
 
 namespace Security.Core.Permissions.Services;
 
-public class PermissionDisplayService : IPermissionDisplayService
+public class PermissionService : IPermissionService
 {
     private readonly Type _permissionType = typeof(Permission);
 
@@ -68,5 +68,21 @@ public class PermissionDisplayService : IPermissionDisplayService
         }
 
         return result;
+    }
+
+
+    public List<string> ValidatePermissionName(IEnumerable<string> permissionNames)
+    {
+        List<string> invalidPermissionNames = new();
+        foreach(string permissionName in permissionNames)
+        {
+            var isValid = Enum.TryParse<Permission>(permissionName,out Permission foundPermission);
+            if (!isValid)
+            {
+                invalidPermissionNames.Add(permissionName);
+            }
+        }
+
+        return invalidPermissionNames;
     }
 }

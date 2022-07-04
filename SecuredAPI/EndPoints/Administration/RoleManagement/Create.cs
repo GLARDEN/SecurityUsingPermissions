@@ -1,9 +1,8 @@
 ﻿using Ardalis.ApiEndpoints;
 using Ardalis.Result.AspNetCore;
-
 using Microsoft.AspNetCore.Mvc;
-
 using Security.Core.Models.Administration.RoleManagement;
+using Security.Core.Models.Administration.RoleManagement.Services;
 using Security.Core.Permissions;
 using Security.Core.Permissions.Enums;
 
@@ -21,13 +20,15 @@ public class Create : EndpointBaseAsync
     }
 
     /// <summary>
-    /// Authenticates and logs user in
+    /// Creates a new Role
     /// </summary>
+    
     [HttpPost(CreateRoleRequest.Route)]
     [HasPermission(Permission.RoleCreate)]
-    public override async Task<ActionResult<CreateRoleResponse>> HandleAsync([FromBody] CreateRoleRequest createRoleRequest, CancellationToken cancellationToken = default)
-    {
-        CreateRoleResponse createRoleResponse = await _roleService.Create(createRoleRequest);
-        return this.ToActionResult<CreateRoleResponse>(createRoleResponse);
+    public override async Task<ActionResult<CreateRoleResponse>> HandleAsync([FromBody] CreateRoleRequest createRoleRequest,
+                                                                             CancellationToken cancellationToken = default)
+    {        
+               
+       return (await _roleService.CreateAsync(createRoleRequest)).ToActionResult(this);
     }
 }

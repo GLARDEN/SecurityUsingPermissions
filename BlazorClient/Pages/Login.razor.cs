@@ -1,43 +1,59 @@
-﻿using BlazorClient.Services;
+﻿using BlazorClient.Interfaces;
+using BlazorClient.Services;
 
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.WebUtilities;
 
+using Security.Core.Models;
 using Security.Core.Models.Authentication;
+
+using System.Linq;
+using System.Net;
 
 namespace BlazorClient.Pages;
 
-public partial class Login : ComponentBase
-{
-    private LoginRequestDto _loginRequest = new LoginRequestDto();
-    [Inject]
-    public IUserService UserService { get; set; } = null!;
+public partial class Login : IDisposable
+{        
     [Inject]
     public NavigationManager NavigationManager { get; set; } = null!;
-    public bool ShowAuthError { get; set; }
-    public string Error { get; set; }
-    private string returnURL = string.Empty;
 
+    [Inject]
+    public IAuthenticationUiService AuthenticationUiService { get; set; } = null!;
+
+
+    public bool ShowAuthenticationError { get; set; }
+    public List<string> Messages { get; set; } = new();
+
+    private LoginRequest _loginRequest = new LoginRequest();
+    private string returnURL = string.Empty;
     protected override void OnInitialized()
-    {   
+    {
         var uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
         if (QueryHelpers.ParseQuery(uri.Query).TryGetValue("returnUrl", out var url))
         {
             returnURL = url;
         }
     }
+
     public async Task ExecuteLogin()
     {
-        ShowAuthError = false;
-        var result = await UserService.Login(_loginRequest);
-        if (!result.IsAuthenticationSuccessful)
+        ShowAuthenticationError = false;
+        Messages.Clear();
+        ApiResponse<LoginResponse> apiResponse = await AuthenticationUiService.Login(_loginRequest);
+        if (apiResponse.StatusCode == HttpStatusCode.Unauthorized)
         {
-            Error = result.ErrorMessage;
-            ShowAuthError = true;
+            ShowAuthenticationError = true;
+            Messages.Add("Login attempt failed.");
+
+
         }
         else
         {
             NavigationManager.NavigateTo(returnURL);
         }
+    }
+    public void Dispose()
+    {  
+     
     }
 }

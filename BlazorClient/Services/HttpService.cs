@@ -1,36 +1,37 @@
 ﻿
-
 using Blazored.LocalStorage;
-
-using Microsoft.AspNetCore.Components;
-
+using System.Net;
+using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
-using System.Text.Json.Serialization;
+
+using BlazorClient.Interfaces;
+using Security.Core.Models;
+using Microsoft.AspNetCore.Http;
 
 namespace BlazorClient.Services;
 
-public class HttpService :IHttpService
+
+
+public class HttpService : IHttpService
 {
     private readonly IHttpClientFactory _httpClientFactory;
-    private readonly NavigationManager _navigationManager;
     private readonly ILocalStorageService _localStorage;
     private readonly HttpClient _httpClient;
     private readonly string _apiBaseUrl;
 
-    public HttpService(IHttpClientFactory httpClientFactory, NavigationManager navigationManager, ILocalStorageService localStorage)
+    public HttpService(IHttpClientFactory httpClientFactory, ILocalStorageService localStorage) 
     {
-        _httpClient = httpClientFactory.CreateClient("WebAPI");
-        _navigationManager = navigationManager;
+        _httpClientFactory = httpClientFactory;
         _localStorage = localStorage;
-        _apiBaseUrl = _httpClient?.BaseAddress?.ToString() ?? "";
     }
 
-    public async Task<T> HttpGetAsync<T>(string uri) where T : class
+    public async Task<ApiResponse<T>> HttpGetAsync<T>(string uri) where T : class
     {
-        var test = $"{_apiBaseUrl}{uri}";
+        HttpClient httpClient = _httpClientFactory?.CreateClient("api");
+        var requestUrl = $"{httpClient?.BaseAddress?.ToString()}{uri}";
 
-        var result = await _httpClient.GetAsync(test);
+        var result = await httpClient.GetAsync(requestUrl);
 
         if (!result.IsSuccessStatusCode)
         {
@@ -39,26 +40,17 @@ public class HttpService :IHttpService
         return await FromHttpResponseMessageAsync<T>(result);
     }
 
-    public async Task<string> HttpGetAsync(string uri)
-    {
-        var result = await _httpClient.GetAsync($"{_apiBaseUrl}{uri}");
-        if (!result.IsSuccessStatusCode)
-        {
-            return null;
-        }
-
-        return await result.Content.ReadAsStringAsync();
-    }
-
-    public Task<T> HttpDeleteAsync<T>(string uri, object id) where T : class
+    public Task<ApiResponse<T>> HttpDeleteAsync<T>(string uri, object id) where T : class
     {
         return HttpDeleteAsync<T>($"{uri}/{id}");
     }
 
-    public async Task<T> HttpDeleteAsync<T>(string uri)
-        where T : class
+    public async Task<ApiResponse<T>> HttpDeleteAsync<T>(string uri) where T : class
     {
-        var result = await _httpClient.DeleteAsync($"{_apiBaseUrl}{uri}");
+        HttpClient httpClient = _httpClientFactory?.CreateClient("api");
+        var requestUrl = $"{httpClient?.BaseAddress?.ToString()}{uri}";
+
+        var result = await httpClient.DeleteAsync(requestUrl);
         if (!result.IsSuccessStatusCode)
         {
             return null;
@@ -67,75 +59,71 @@ public class HttpService :IHttpService
         return await FromHttpResponseMessageAsync<T>(result);
     }
 
-    public async Task<T> HttpPostAsync<T>(string uri, object dataToSend) where T : class
+    public async Task<ApiResponse<T>> HttpPostAsync<T>(string uri, object dataToSend) where T : class
+    {
+        var content = ToJson(dataToSend);
+        HttpClient httpClient = _httpClientFactory?.CreateClient("api");
+        var requestUrl = $"{httpClient?.BaseAddress?.ToString()}{uri}";
+
+        var result = await httpClient.PostAsync(requestUrl, content);
+
+        if (result == null)
+        {
+            return null;
+        }
+
+        return await FromHttpResponseMessageAsync<T>(result);
+    }
+
+    public async Task<ApiResponse<T>> HttpPutAsync<T>(string uri, object dataToSend) where T : class
     {
         var content = ToJson(dataToSend);
         var apiURL = $"{_apiBaseUrl}{uri}";
 
-        var result = await _httpClient.PostAsync(apiURL, content);
-        if (!result.IsSuccessStatusCode)
-        {
-            return null;
-        }
+        HttpClient httpClient = _httpClientFactory?.CreateClient("api");
+        var requestUrl = $"{httpClient?.BaseAddress?.ToString()}{uri}";
+
+        var result = await httpClient.PutAsync(apiURL, content);
 
         return await FromHttpResponseMessageAsync<T>(result);
-    }
-
-    public async Task<T> HttpPutAsync<T>(string uri, object dataToSend)
-        where T : class
-    {
-        var content = ToJson(dataToSend);
-        var apiURL = $"{_apiBaseUrl}{uri}";
-
-        var result = await _httpClient.PutAsync(apiURL, content);
-        if (!result.IsSuccessStatusCode)
-        {
-            return null;
-        }
-
-        return await FromHttpResponseMessageAsync<T>(result);
-    }
-
-    public async void LogOut()
-    {
-        await _localStorage.RemoveItemAsync("authenticationToken");
-        _httpClient.DefaultRequestHeaders.Authorization = null;
     }
 
     private StringContent ToJson(object obj)
     {
-        try
-        {
-            var result = JsonSerializer.Serialize(obj);
-            return new StringContent(result, Encoding.UTF8, "application/json");
-        }
-        catch (Exception ex)
-        {
-            var test = ex.Message;
-        }
-        return null;
+        var result = JsonSerializer.Serialize(obj);
+        return new StringContent(result, Encoding.UTF8, "application/json");
     }
 
-    private async Task<T> FromHttpResponseMessageAsync<T>(HttpResponseMessage result)
+    private async Task<ApiResponse<T>> FromHttpResponseMessageAsync<T>(HttpResponseMessage result) where T : class
     {
+        ApiResponse<T> apiResponse;
         try
         {
-            return JsonSerializer.Deserialize<T>(await result.Content.ReadAsStringAsync(), new JsonSerializerOptions
+            apiResponse = new ApiResponse<T>(result.StatusCode);
+
+            if (result.StatusCode == HttpStatusCode.OK)
             {
-                PropertyNameCaseInsensitive = true
+                var jsonData = await result.Content.ReadFromJsonAsync<T>();
+                apiResponse.Data = jsonData;
+            }
+            else if (result.StatusCode == HttpStatusCode.BadRequest)
+            {
+                //Convert validation messages or exceptions to response object for UI to display
+                //Sample Structure Validation Result: { "example":["Sample Validation Message 1","Sample Validation Message 2"]}
+                var jsonString = await result.Content.ReadAsStringAsync();
+                Dictionary<string, List<string>>? requestResult = JsonSerializer.Deserialize<Dictionary<string, List<string>>>(jsonString);
 
-            });
-        } 
-        catch (Exception ex)
-        {
-            var test = ex;
+                List<string>? messages = requestResult?.Values.SelectMany(v => v).ToList();
+                apiResponse.ResponseMessages?.AddRange(messages ?? new());
+            }
+
+            return apiResponse;
         }
-
-        return JsonSerializer.Deserialize<T>("", new JsonSerializerOptions
+        catch (JsonException ex)
         {
-            PropertyNameCaseInsensitive = true,
-
-        });
+            return new ApiResponse<T>(HttpStatusCode.InternalServerError, new List<string>() { ex.Message });
+        }
     }
 }
+
 
