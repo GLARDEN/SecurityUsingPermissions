@@ -32,8 +32,7 @@ public class RefreshTokenHandler : DelegatingHandler
     }
 
 
-    protected override async Task<HttpResponseMessage> SendAsync(
-        HttpRequestMessage request, CancellationToken cancellationToken)
+    protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
     {
         var absPath = request.RequestUri.AbsolutePath;
         if (absPath != string.Empty && !absPath.ToLower().Contains("refreshtoken") && !absPath.ToLower().Contains("login") && !absPath.ToLower().Contains("logout"))

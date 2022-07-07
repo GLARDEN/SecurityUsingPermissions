@@ -1,0 +1,48 @@
+﻿@page "/UserManagement/Users"
+
+
+<h3>@PageTitle</h3>
+@if (_userList != null)
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>UserName</th>
+                <th>Email</th>
+                <th>Assigned Roles</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var user in _userList)
+            {
+
+                <tr>
+                    <td>
+                        @user.Id
+                    </td>
+                    <td>
+                        @user.Email
+                    </td>
+                    <td>
+                        <ul>
+                            @foreach (var assignedRole in user.AssignedRoles)
+                            {
+
+                                <li>@assignedRole.RoleName</li>
+                            }
+                        </ul>
+                    </td>
+                    <td>
+                        <button class="btn btn-info me-1" @onclick="(() => Edit(user))">Edit</button>
+                        <button class="btn btn-info me-1" @onclick="(() => Delete(user))">Delete</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+}
+
+
+

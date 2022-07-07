@@ -26,8 +26,8 @@ public class AppDbContext : DbContext
         builder.Entity<User>().HasKey(k => k.Id);
 
         builder.Entity<RefreshToken>().HasKey(k => new {k.UserId, k.DeviceId });      
-        builder.Entity<RefreshToken>().HasIndex(i => new { i.UserId, i.DeviceId, i.IsInvalid}).IsUnique();
-        builder.Entity<RefreshToken>().HasQueryFilter(rt => !rt.IsInvalid);
+        builder.Entity<RefreshToken>().HasIndex(i => new { i.UserId, i.DeviceId, i.IsValid}).IsUnique();
+        builder.Entity<RefreshToken>().HasQueryFilter(rt => rt.IsValid);
 
         builder.Entity<UserRole>().HasKey(x => new { x.UserId, x.RoleName });
 

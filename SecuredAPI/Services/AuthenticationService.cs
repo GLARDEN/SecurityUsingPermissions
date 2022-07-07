@@ -100,13 +100,11 @@ public class AuthenticationService : IAuthenticationService
             UserId = logOutRequest.UserId
         };
 
-        User? user = null;
+        User? user = await _userRepository.GetBySpecAsync(new GetUserFilterRefreshTokenByDeviceIdSpec(logOutRequest.UserId, logOutRequest.DeviceId));
 
         if (user != null)
         {
-            user = await _userRepository.GetBySpecAsync(new GetUserFilterRefreshTokenByDeviceIdSpec(logOutRequest.UserId, logOutRequest.DeviceId));
             user.RevokeRefreshToken(logOutRequest.DeviceId);
-
 
             await _userRepository.UpdateAsync(user);
             await _userRepository.SaveChangesAsync();
@@ -205,7 +203,7 @@ public class AuthenticationService : IAuthenticationService
             {
                 if (_refreshTokenService.ValidateRefreshToken(refreshTokenRequest?.RefreshToken, refreshToken.TokenHash, refreshToken.TokenSalt))
                 {
-                    if (refreshToken.IsInvalid || refreshToken.Expiry < DateTime.Now)
+                    if (!refreshToken.IsValid || refreshToken.Expiry < DateTime.Now)
                     {
                         user.RevokeRefreshToken(refreshToken.DeviceId);
                         await _userRepository.UpdateAsync(user);

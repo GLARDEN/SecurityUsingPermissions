@@ -16,10 +16,10 @@ public class RefreshToken
     public DateTime Created { get; private set; }
 
     /// <summary>
-    /// If this true, then you should not renew the JWT token
-    /// It gets set to true if it has been used, or can manually set to true to force a new login
+    /// If this is false, then you should not renew the JWT token
+    /// Can manually set to true to force a new login
     /// </summary>
-    public bool IsInvalid { get; private set; }
+    public bool IsValid { get; private set; }
 
     public RefreshToken(Guid userId, Guid deviceId, DateTime created,DateTime expiry,string token, byte[] tokenHash, byte[] tokenSalt)
     {
@@ -30,6 +30,7 @@ public class RefreshToken
         Token = token;
         TokenHash = tokenHash;
         TokenSalt = tokenSalt;
+        IsValid = true;
     }
 
     public static string GenerateTokenValue()
@@ -46,6 +47,6 @@ public class RefreshToken
     /// </summary>
     public void MarkAsInvalid()
     {
-        IsInvalid = true;
+        IsValid = false;
     }
 }

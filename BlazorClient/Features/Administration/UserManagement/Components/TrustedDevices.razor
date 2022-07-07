@@ -1,0 +1,48 @@
+﻿@using Security.Core.Models.Authentication
+<table class="table-sm table-bordered w-100">
+    <thead>
+        <tr><th colspan="7"><span class="h2">Trusted Devices</span></th></tr>
+        <tr>
+            <th>Token</th>
+            <th>Device Id</th>
+            <th>Browser Name</th>
+            <th>Created</th>
+            <th>Expires On</th>
+            <th>Valid</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (RefreshTokenDto refreshToken in User.RefreshTokens)
+        {
+            <tr class="border-bottom">
+                <td>@refreshToken.Token</td>
+                <td>@refreshToken.DeviceId</td>
+                <td>@refreshToken.DeviceName</td>
+                <td>@refreshToken.Created</td>
+                <td>@refreshToken.Expiry</td>
+                <td>
+                    @if(refreshToken.IsValid)
+                    {
+                        <span>
+                            <i class="fa-solid fa-check fa-2xl text-success center"></i>
+                        </span>
+                    }
+                    else
+                    {
+                        <span>
+                            <i class="fa-solid fa-x fa-2xl text-danger center"></i>
+                        </span>
+                    }              
+                </td>
+                <td><button class="btn btn-danger" @onclick="(() => RevokeRefreshToken(refreshToken))">Revoke</button></td>
+            </tr>
+        }
+    </tbody>
+    <tfoot>
+        <tr>
+            <td colspan="7"><button class="btn btn-info justify-content-end" @onclick="(() => RevokeAllTokens())">Log Out All Devices</button></td>
+        </tr>
+    </tfoot>
+</table>
+

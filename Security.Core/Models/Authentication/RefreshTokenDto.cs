@@ -8,5 +8,5 @@ public class RefreshTokenDto
     public string? Token { get;  set; } 
     public DateTime Expiry { get;  set; }
     public DateTime Created { get;  set; }
-    public bool IsInvalid { get;  set; }
+    public bool IsValid { get;  set; }
 }

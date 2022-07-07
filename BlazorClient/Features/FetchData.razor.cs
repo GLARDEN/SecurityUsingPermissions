@@ -10,16 +10,13 @@ using BlazorClient.Interfaces;
 using Microsoft.AspNetCore.Components.Authorization;
 using BlazorClient.Providers;
 
-namespace BlazorClient.Pages
+namespace BlazorClient.Features
 {
 
     public partial class FetchData : IDisposable
     {
         [CascadingParameter]
         public AuthStateProvider authenticationStateProvider { get; set; }
-
-       // [Inject]
-      //  public IHttpInterceptorService Interceptor { get; set; }
 
         [Inject]
         public IAuthenticationUiService UserService { get; set; }

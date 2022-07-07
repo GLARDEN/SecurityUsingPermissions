@@ -1,0 +1,30 @@
+﻿@page "/UserManagement/CreateOrEditUser"
+@using BlazorClient.Features.Administration.UserManagement.Components
+@using Security.Core.Models.Administration.RoleManagement
+@using Security.Core.Models.Authentication
+
+<h3>User Details: @_selectedUser.Email</h3>
+<hr />
+
+<TrustedDevices ></TrustedDevices>
+<UserRoles></UserRoles>
+
+<button class="btn btn-info" @onclick="(() => SaveAsync())">Save</button>
+
+@*<tr>
+    <td>
+    @permission.GroupName
+    </td>
+    <td>
+    @permission.Description
+    </td>
+    <td>
+    @permission.PermissionName
+
+    </td>
+    <td>
+    <button type="button" class="btn-sm  @(Model.PermissionsWithSelect[i].Selected ? "btn-primary" : "btn-secondary")">
+    @(Model.PermissionsWithSelect[i].Selected ? "Selected" : "Select")
+    </button>
+    </td>
+    </tr>*@

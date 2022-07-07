@@ -12,7 +12,7 @@ using Security.Core.Models.Administration.RoleManagement;
 
 using System.Net;
 
-namespace BlazorClient.Pages.Administration.RoleManagement;
+namespace BlazorClient.Features.Administration.RoleManagement;
 
 public partial class Roles : IDisposable
 {

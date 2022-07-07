@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Mvc;
 using Security.Core.Models.UserManagement;
 using Security.Core.Models.UserManagement.Services;
 using Security.Core.Models.WeatherForecast;
+using Security.Core.Permissions.Enums;
+using Security.Core.Permissions;
 
 namespace SecuredAPI.EndPoints.Administration.UserManagement;
 
@@ -25,7 +27,7 @@ public class List : EndpointBaseAsync
     /// Get a list of weather forecasts
     /// </summary>
     [HttpGet(ListUsersRequest.Route)]
-    
+    [HasPermission(Permission.UserView)]
     public override async Task<ActionResult<ListUsersResponse>> HandleAsync(CancellationToken cancellationToken = default)
     {
         var response = await _userManagementService.ListAsync();

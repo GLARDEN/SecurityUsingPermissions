@@ -7,6 +7,8 @@ using Ardalis.Result.AspNetCore;
 
 using Security.Core.Models.Authentication;
 using Ardalis.Result;
+using Security.Core.Permissions.Enums;
+using Security.Core.Permissions;
 
 namespace SecuredAPI.EndPoints.Authentication;
 

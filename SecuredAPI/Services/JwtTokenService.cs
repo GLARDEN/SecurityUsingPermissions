@@ -47,7 +47,7 @@ public class JwtTokenService : IJwtTokenService
 
             SigningCredentials signingCredentials = GetSigningCredentials();
 
-            DateTime expireTime = DateTime.UtcNow.AddMinutes(5);
+            DateTime expireTime = DateTime.UtcNow.AddMinutes(600);
 
             var jwtSecurityToken = new JwtSecurityToken(
                 claims: claims,

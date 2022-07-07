@@ -66,7 +66,7 @@ namespace Security.Infrastructure.Migrations
                     TokenSalt = table.Column<byte[]>(type: "varbinary(max)", nullable: false),
                     Expiry = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Created = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    IsInvalid = table.Column<bool>(type: "bit", nullable: false)
+                    IsValid = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -99,9 +99,9 @@ namespace Security.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_RefreshTokens_UserId_DeviceId_IsInvalid",
+                name: "IX_RefreshTokens_UserId_DeviceId_IsValid",
                 table: "RefreshTokens",
-                columns: new[] { "UserId", "DeviceId", "IsInvalid" },
+                columns: new[] { "UserId", "DeviceId", "IsValid" },
                 unique: true);
 
             migrationBuilder.CreateIndex(

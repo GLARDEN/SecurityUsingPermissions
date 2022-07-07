@@ -10,7 +10,7 @@ using Security.Core.Models.Authentication;
 using System.Linq;
 using System.Net;
 
-namespace BlazorClient.Pages;
+namespace BlazorClient.Features;
 
 public partial class Login : IDisposable
 {        

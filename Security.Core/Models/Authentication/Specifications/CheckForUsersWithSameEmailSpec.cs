@@ -12,6 +12,6 @@ public class CheckForUniqueRefreshTokenSpec : Specification<User>
             .Where(u =>u.Id.Equals(userId) && 
                        u.RefreshTokens.Any(t => t.DeviceId.Equals(deviceId) &&
                                                  t.Token.ToLower() == refreshToken.ToLower() &&
-                                                 !t.IsInvalid));
+                                                 t.IsValid));
     }
 }

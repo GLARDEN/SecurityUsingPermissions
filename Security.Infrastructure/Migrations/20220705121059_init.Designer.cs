@@ -12,7 +12,7 @@ using Security.Infrastructure;
 namespace Security.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20220623190148_init")]
+    [Migration("20220705121059_init")]
     partial class init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -66,7 +66,7 @@ namespace Security.Infrastructure.Migrations
                     b.Property<DateTime>("Expiry")
                         .HasColumnType("datetime2");
 
-                    b.Property<bool>("IsInvalid")
+                    b.Property<bool>("IsValid")
                         .HasColumnType("bit");
 
                     b.Property<string>("Token")
@@ -83,7 +83,7 @@ namespace Security.Infrastructure.Migrations
 
                     b.HasKey("UserId", "DeviceId");
 
-                    b.HasIndex("UserId", "DeviceId", "IsInvalid")
+                    b.HasIndex("UserId", "DeviceId", "IsValid")
                         .IsUnique();
 
                     b.ToTable("RefreshTokens");

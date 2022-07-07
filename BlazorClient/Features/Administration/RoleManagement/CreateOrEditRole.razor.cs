@@ -12,15 +12,12 @@ using Security.Core.Permissions.Services;
 using System.Data;
 using System.Net;
 
-namespace BlazorClient.Pages.Administration.RoleManagement;
+namespace BlazorClient.Features.Administration.RoleManagement;
 
 public partial class CreateOrEditRole : IDisposable
 {
     [Inject]
     public NavigationManager NavigationManager { get; set; } = null!;
-
-  //  [Inject]
-  //  public IHttpInterceptorService Interceptor { get; set; }
 
     [Inject]
     protected IAppStateProvider<RoleDto> StateProvider { get; set; } = null!;
@@ -47,8 +44,6 @@ public partial class CreateOrEditRole : IDisposable
 
     protected override void OnInitialized()
     {
-      //  Interceptor.RegisterEvent();
-
         _groupedPermissions = PermissionDisplayService.GroupPermissionsForDisplay();
 
         if (StateProvider.State != null)
@@ -137,7 +132,6 @@ public partial class CreateOrEditRole : IDisposable
 
     public void Dispose()
     {
-        StateProvider.State = null;
-      //  Interceptor.DisposeEvent();
+        StateProvider.State = null;      
     }
 }

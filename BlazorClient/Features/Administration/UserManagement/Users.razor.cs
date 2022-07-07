@@ -7,7 +7,7 @@ using BlazorClient.Providers;
 using Security.Core.Models.Administration.RoleManagement;
 using BlazorClient.Services;
 
-namespace BlazorClient.Pages.Administration.UserManagement;
+namespace BlazorClient.Features.Administration.UserManagement;
 
 
 public partial class Users

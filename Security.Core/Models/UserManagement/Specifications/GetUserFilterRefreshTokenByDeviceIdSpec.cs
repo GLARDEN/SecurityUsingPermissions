@@ -9,6 +9,7 @@ public class GetUserFilterRefreshTokenByDeviceIdSpec : Specification<User>, ISin
         Query
             .Where(user => user.Id.Equals(userId))
             .Include(u => u.UserRoles)
-            .Include(u => u.RefreshTokens.Where(rt => rt.DeviceId.Equals(deviceId)));
+            .Include(u => u.RefreshTokens.Where(rt => rt.DeviceId.Equals(deviceId)))
+            .IgnoreQueryFilters();
     }
 }

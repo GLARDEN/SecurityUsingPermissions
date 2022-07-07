@@ -9,7 +9,7 @@ using Security.Core.Models.Authentication;
 
 using System.Net;
 
-namespace BlazorClient.Pages;
+namespace BlazorClient.Features;
 
 public partial class Register : ComponentBase
 {

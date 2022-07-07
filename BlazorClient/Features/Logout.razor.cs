@@ -2,7 +2,7 @@
 
 using Microsoft.AspNetCore.Components;
 
-namespace BlazorClient.Pages;
+namespace BlazorClient.Features;
 
 public partial class Logout : ComponentBase
 {

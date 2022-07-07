@@ -66,8 +66,7 @@ public class RefreshTokenUiService : IRefreshTokenUiService
         string jwtToken = await _jwtTokenService.GetJwtTokenAsync();
                
         if(jwtToken != string.Empty)
-        {
-            bool jwtTokenExpired = await _jwtTokenService.IsJwtTokenExpiredAsync(jwtToken);
+        {            
             double minutesToExpiry = await _jwtTokenService.GetMinutesUntilTokenExpiresAsync(jwtToken);
 
             if (minutesToExpiry <= 2)
